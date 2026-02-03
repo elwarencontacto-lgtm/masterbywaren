@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Masterizador Online Gratis</title>
+  <style>
+    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0b0b;color:#fff}
+    header{text-align:center;padding:30px 20px;background:#111}
+    h1{margin:0;font-size:28px}
+    p{opacity:.8}
+    main{max-width:720px;margin:40px auto;padding:20px}
+    .card{background:#161616;border-radius:14px;padding:24px;box-shadow:0 0 30px rgba(0,0,0,.6)}
+    label{display:block;margin-top:15px;margin-bottom:6px}
+    input,select,button{width:100%;padding:12px;border-radius:8px;border:none;font-size:16px}
+    button{margin-top:20px;background:#e63946;color:#fff;font-weight:bold;cursor:pointer}
+    button:hover{background:#ff4d5a}
+    audio{width:100%;margin-top:20px}
+    a{display:none;margin-top:15px;text-align:center;color:#e63946;text-decoration:none;font-weight:bold}
+    footer{text-align:center;font-size:12px;opacity:.5;margin:40px 0}
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🎧 Masterizador Online Gratis</h1>
+  <p>Sube tu música y obtén un master automático</p>
+</header>
+
+<main>
+  <div class="card">
+    <label>Sube tu archivo (MP3 o WAV)</label>
+    <input type="file" id="audioFile" accept="audio/*">
+
+    <label>Estilo de masterización</label>
+    <select id="style">
+      <option value="balanced">Balanceado</option>
+      <option value="metal">Metal</option>
+      <option value="edm">EDM / Trap</option>
+      <option value="podcast">Podcast</option>
+    </select>
+
+    <button onclick="masterizar()">Masterizar</button>
+
+    <audio id="player" controls></audio>
+    <a id="download">⬇️ Descargar master WAV</a>
+  </div>
+</main>
+
+<footer>
+  Funciona 100% en tu navegador · Ideal para Netlify / Hosting gratis
+</footer>
+
+<script>
+async function masterizar(){
+  const input=document.getElementById('audioFile');
+  if(!input.files.length){alert('Sube un audio');return}
+  const style=document.getElementById('style').value;
+  const file=input.files[0];
+  const arrayBuffer=await file.arrayBuffer();
+  const ctx=new AudioContext();
+  const buffer=await ctx.decodeAudioData(arrayBuffer);
+
+  const off=new OfflineAudioContext(buffer.numberOfChannels,buffer.length,buffer.sampleRate);
+  const src=off.createBufferSource();
+  src.buffer=buffer;
+
+  const comp=off.createDynamicsCompressor();
+  const eq=off.createBiquadFilter();
+  eq.type='peaking';
+
+  if(style==='metal'){
+    comp.threshold.value=-18;comp.ratio.value=4;
+    eq.frequency.value=4000;eq.gain.value=4;
+  }else if(style==='edm'){
+    comp.threshold.value=-20;comp.ratio.value=3;
+    eq.frequency.value=80;eq.gain.value=5;
+  }else if(style==='podcast'){
+    comp.threshold.value=-16;comp.ratio.value=2;
+    eq.frequency.value=3000;eq.gain.value=3;
+  }else{
+    comp.threshold.value=-20;comp.ratio.value=2;
+    eq.frequency.value=1000;eq.gain.value=2;
+  }
+
+  src.connect(eq).connect(comp).connect(off.destination);
+  src.start();
+
+  const rendered=await off.startRendering();
+  const wav=bufferToWave(rendered,rendered.length);
+  const url=URL.createObjectURL(wav);
+
+  document.getElementById('player').src=url;
+  const d=document.getElementById('download');
+  d.href=url;d.download='master.wav';d.style.display='block';
+}
+
+function bufferToWave(abuffer,len){
+  const num=abuffer.numberOfChannels;
+  const length=len*num*2+44;
+  const buffer=new ArrayBuffer(length);
+  const view=new DataView(buffer);
+  let offset=0;
+
+  function write(s){for(let i=0;i<s.length;i++)view.setUint8(offset++,s.charCodeAt(i))}
+  write('RIFF');view.setUint32(offset,length-8,true);offset+=4;
+  write('WAVE');write('fmt ');
+  view.setUint32(offset,16,true);offset+=4;
+  view.setUint16(offset,1,true);offset+=2;
+  view.setUint16(offset,num,true);offset+=2;
+  view.setUint32(offset,abuffer.sampleRate,true);offset+=4;
+  view.setUint32(offset,abuffer.sampleRate*num*2,true);offset+=4;
+  view.setUint16(offset,num*2,true);offset+=2;
+  view.setUint16(offset,16,true);offset+=2;
+  write('data');view.setUint32(offset,length-offset-4,true);offset+=4;
+
+  for(let i=0;i<len;i++){
+    for(let ch=0;ch<num;ch++){
+      let sample=abuffer.getChannelData(ch)[i];
+      sample=Math.max(-1,Math.min(1,sample));
+      view.setInt16(offset,sample<0?sample*0x8000:sample*0x7fff,true);
+      offset+=2;
+    }
+  }
+  return new Blob([buffer],{type:'audio/wav'});
+}
+</script>
+
+</body>
+</html>
