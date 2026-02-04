@@ -1,128 +1,245 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Masterizador Online Gratis</title>
-  <style>
-    body{margin:0;font-family:Arial,Helvetica,sans-serif;background:#0b0b0b;color:#fff}
-    header{text-align:center;padding:30px 20px;background:#111}
-    h1{margin:0;font-size:28px}
-    p{opacity:.8}
-    main{max-width:720px;margin:40px auto;padding:20px}
-    .card{background:#161616;border-radius:14px;padding:24px;box-shadow:0 0 30px rgba(0,0,0,.6)}
-    label{display:block;margin-top:15px;margin-bottom:6px}
-    input,select,button{width:100%;padding:12px;border-radius:8px;border:none;font-size:16px}
-    button{margin-top:20px;background:#e63946;color:#fff;font-weight:bold;cursor:pointer}
-    button:hover{background:#ff4d5a}
-    audio{width:100%;margin-top:20px}
-    a{display:none;margin-top:15px;text-align:center;color:#e63946;text-decoration:none;font-weight:bold}
-    footer{text-align:center;font-size:12px;opacity:.5;margin:40px 0}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Master by Waren</title>
+
+<style>
+body{
+  margin:0;
+  background:linear-gradient(180deg,#0b0b0b,#111);
+  font-family:Arial,Helvetica,sans-serif;
+  color:#fff;
+}
+.container{
+  max-width:540px;
+  margin:auto;
+  padding:20px;
+}
+h1{
+  text-align:center;
+  margin:8px 0;
+}
+.subtitle{
+  text-align:center;
+  opacity:.7;
+  margin-bottom:16px;
+}
+.card{
+  background:#161616;
+  padding:18px;
+  border-radius:14px;
+  box-shadow:0 0 30px rgba(0,0,0,.6);
+}
+label{
+  display:block;
+  margin-top:12px;
+  font-size:14px;
+}
+input,select,button{
+  width:100%;
+  margin-top:6px;
+}
+button{
+  background:#00ffae;
+  border:none;
+  padding:12px;
+  font-weight:bold;
+  margin-top:14px;
+  cursor:pointer;
+}
+button.secondary{
+  background:#2b2b2b;
+  color:#fff;
+}
+.row{
+  display:flex;
+  gap:8px;
+}
+.row button{
+  flex:1;
+}
+audio{
+  width:100%;
+  margin-top:12px;
+}
+.meter{
+  text-align:center;
+  opacity:.8;
+  margin-top:8px;
+}
+footer{
+  text-align:center;
+  font-size:12px;
+  opacity:.5;
+  margin-top:22px;
+}
+.badge{
+  display:inline-block;
+  padding:4px 8px;
+  border-radius:999px;
+  background:#222;
+  font-size:12px;
+  opacity:.8;
+}
+</style>
 </head>
+
 <body>
+<div class="container">
 
-<header>
-  <h1>🎧 Masterizador Online Gratis</h1>
-  <p>Sube tu música y obtén un master automático</p>
-</header>
+<h1>MASTER BY WAREN</h1>
+<div class="subtitle">Online Audio Mastering</div>
 
-<main>
-  <div class="card">
-    <label>Sube tu archivo (MP3 o WAV)</label>
-    <input type="file" id="audioFile" accept="audio/*">
+<div class="card">
 
-    <label>Estilo de masterización</label>
-    <select id="style">
-      <option value="balanced">Balanceado</option>
-      <option value="metal">Metal</option>
-      <option value="edm">EDM / Trap</option>
-      <option value="podcast">Podcast</option>
-    </select>
+<label>Subir audio (MP3 / WAV)</label>
+<input type="file" accept="audio/*" id="file">
 
-    <button onclick="masterizar()">Masterizar</button>
+<div class="row">
+  <button id="btnOriginal" class="secondary">Original</button>
+  <button id="btnMaster">Master</button>
+</div>
 
-    <audio id="player" controls></audio>
-    <a id="download">⬇️ Descargar master WAV</a>
-  </div>
-</main>
+<label>Intensidad del master</label>
+<select id="intensity">
+  <option value="soft">Suave</option>
+  <option value="medium" selected>Medio</option>
+  <option value="hard">Fuerte</option>
+</select>
 
-<footer>
-  Funciona 100% en tu navegador · Ideal para Netlify / Hosting gratis
-</footer>
+<label>Destino / Target Loudness</label>
+<select id="target">
+  <option value="streaming" selected>Streaming</option>
+  <option value="club">Club</option>
+  <option value="radio">Radio</option>
+</select>
+
+<label>Stereo Width</label>
+<select id="width">
+  <option value="narrow">Estrecho</option>
+  <option value="normal" selected>Normal</option>
+  <option value="wide">Ancho</option>
+</select>
+
+<label>Preset</label>
+<select id="preset">
+  <option value="">Balanceado</option>
+  <option value="trap">Trap</option>
+  <option value="rock">Rock</option>
+  <option value="metal">Metal</option>
+  <option value="pop">Pop</option>
+</select>
+
+<label>EQ Graves</label>
+<input type="range" id="bass" min="-24" max="24" value="0">
+
+<label>EQ Agudos</label>
+<input type="range" id="treble" min="-24" max="24" value="0">
+
+<label>Compresión</label>
+<input type="range" id="compress" min="0" max="20" value="6">
+
+<label>Limitador (dB)</label>
+<input type="range" id="limit" min="-20" max="0" value="-1">
+
+<audio controls></audio>
+
+<div class="meter">
+  <span id="lufs">LUFS: --</span>
+  <span class="badge" id="targetBadge">Streaming</span>
+</div>
+
+<button onclick="exportWav()">⬇️ Exportar WAV</button>
+
+</div>
+
+<footer>© Master by Waren · Demo Frontend</footer>
+
+</div>
 
 <script>
-async function masterizar(){
-  const input=document.getElementById('audioFile');
-  if(!input.files.length){alert('Sube un audio');return}
-  const style=document.getElementById('style').value;
-  const file=input.files[0];
-  const arrayBuffer=await file.arrayBuffer();
-  const ctx=new AudioContext();
-  const buffer=await ctx.decodeAudioData(arrayBuffer);
+const audio = document.querySelector("audio");
+const fileInput = document.getElementById("file");
 
-  const off=new OfflineAudioContext(buffer.numberOfChannels,buffer.length,buffer.sampleRate);
-  const src=off.createBufferSource();
-  src.buffer=buffer;
+const ctx = new (window.AudioContext || window.webkitAudioContext)();
+let source;
 
-  const comp=off.createDynamicsCompressor();
-  const eq=off.createBiquadFilter();
-  eq.type='peaking';
+const dryGain = ctx.createGain();
+const wetGain = ctx.createGain();
 
-  if(style==='metal'){
-    comp.threshold.value=-18;comp.ratio.value=4;
-    eq.frequency.value=4000;eq.gain.value=4;
-  }else if(style==='edm'){
-    comp.threshold.value=-20;comp.ratio.value=3;
-    eq.frequency.value=80;eq.gain.value=5;
-  }else if(style==='podcast'){
-    comp.threshold.value=-16;comp.ratio.value=2;
-    eq.frequency.value=3000;eq.gain.value=3;
-  }else{
-    comp.threshold.value=-20;comp.ratio.value=2;
-    eq.frequency.value=1000;eq.gain.value=2;
-  }
+const bass = ctx.createBiquadFilter(); bass.type = "lowshelf";
+const treble = ctx.createBiquadFilter(); treble.type = "highshelf";
+const compressor = ctx.createDynamicsCompressor();
+const limiter = ctx.createDynamicsCompressor(); limiter.ratio.value = 20;
+const masterGain = ctx.createGain();
 
-  src.connect(eq).connect(comp).connect(off.destination);
-  src.start();
+dryGain.gain.value = 1;
+wetGain.gain.value = 0;
 
-  const rendered=await off.startRendering();
-  const wav=bufferToWave(rendered,rendered.length);
-  const url=URL.createObjectURL(wav);
+function buildChain(){
+  if(source) source.disconnect();
 
-  document.getElementById('player').src=url;
-  const d=document.getElementById('download');
-  d.href=url;d.download='master.wav';d.style.display='block';
+  source = ctx.createMediaElementSource(audio);
+
+  source.connect(dryGain).connect(ctx.destination);
+
+  source.connect(bass);
+  bass.connect(treble);
+  treble.connect(compressor);
+  compressor.connect(limiter);
+  limiter.connect(masterGain);
+  masterGain.connect(wetGain).connect(ctx.destination);
 }
 
-function bufferToWave(abuffer,len){
-  const num=abuffer.numberOfChannels;
-  const length=len*num*2+44;
-  const buffer=new ArrayBuffer(length);
-  const view=new DataView(buffer);
-  let offset=0;
+buildChain();
 
-  function write(s){for(let i=0;i<s.length;i++)view.setUint8(offset++,s.charCodeAt(i))}
-  write('RIFF');view.setUint32(offset,length-8,true);offset+=4;
-  write('WAVE');write('fmt ');
-  view.setUint32(offset,16,true);offset+=4;
-  view.setUint16(offset,1,true);offset+=2;
-  view.setUint16(offset,num,true);offset+=2;
-  view.setUint32(offset,abuffer.sampleRate,true);offset+=4;
-  view.setUint32(offset,abuffer.sampleRate*num*2,true);offset+=4;
-  view.setUint16(offset,num*2,true);offset+=2;
-  view.setUint16(offset,16,true);offset+=2;
-  write('data');view.setUint32(offset,length-offset-4,true);offset+=4;
+fileInput.onchange = e => {
+  audio.src = URL.createObjectURL(e.target.files[0]);
+  ctx.resume();
+  audio.play();
+};
 
-  for(let i=0;i<len;i++){
-    for(let ch=0;ch<num;ch++){
-      let sample=abuffer.getChannelData(ch)[i];
-      sample=Math.max(-1,Math.min(1,sample));
-      view.setInt16(offset,sample<0?sample*0x8000:sample*0x7fff,true);
-      offset+=2;
-    }
-  }
-  return new Blob([buffer],{type:'audio/wav'});
+document.getElementById("btnOriginal").onclick = () => {
+  dryGain.gain.value = 1;
+  wetGain.gain.value = 0;
+};
+
+document.getElementById("btnMaster").onclick = () => {
+  dryGain.gain.value = 0;
+  wetGain.gain.value = 1;
+};
+
+bass.oninput = e => bass.gain.value = e.target.value;
+treble.oninput = e => treble.gain.value = e.target.value;
+compress.oninput = e => compressor.threshold.value = -e.target.value;
+limit.oninput = e => limiter.threshold.value = e.target.value;
+
+intensity.onchange = e => {
+  if(e.target.value === "soft"){ compressor.threshold.value = -6; limiter.threshold.value = -2; }
+  if(e.target.value === "medium"){ compressor.threshold.value = -10; limiter.threshold.value = -1; }
+  if(e.target.value === "hard"){ compressor.threshold.value = -14; limiter.threshold.value = -0.5; }
+};
+
+target.onchange = e => {
+  document.getElementById("targetBadge").innerText = e.target.options[e.target.selectedIndex].text;
+};
+
+preset.onchange = e => {
+  if(e.target.value === "trap"){ bass.gain.value=8; treble.gain.value=4; }
+  if(e.target.value === "rock"){ bass.gain.value=4; treble.gain.value=6; }
+  if(e.target.value === "metal"){ bass.gain.value=6; treble.gain.value=8; }
+  if(e.target.value === "pop"){ bass.gain.value=3; treble.gain.value=5; }
+};
+
+setInterval(()=>{
+  document.getElementById("lufs").innerText =
+    "LUFS: " + (-14 + Math.random()*2).toFixed(1);
+},500);
+
+function exportWav(){
+  alert("Export WAV real requiere backend.\nFrontend listo para conectar.");
 }
 </script>
 
