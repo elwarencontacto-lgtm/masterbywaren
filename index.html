@@ -2,646 +2,147 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Master by Waren</title>
-
 <style>
-  :root{
-    --bg1:#0b0b0b; --bg2:#111;
-    --card:#161616; --line:#222;
-    --text:#fff; --muted:rgba(255,255,255,.7);
-    --accent:#00ffae; --accent2:#7ef7d3;
-    --btn2:#2b2b2b;
-  }
   body{
-    margin:0;
-    background:linear-gradient(180deg,var(--bg1),var(--bg2));
+    margin:0;background:#0f0f0f;color:#fff;
     font-family:Arial,Helvetica,sans-serif;
-    color:var(--text);
   }
-  .container{max-width:600px;margin:auto;padding:20px}
-  h1{text-align:center;margin:8px 0}
-  .subtitle{text-align:center;opacity:.7;margin-bottom:16px}
+  .wrap{max-width:520px;margin:auto;padding:20px}
+  h1{text-align:center;margin:10px 0}
   .card{
-    background:var(--card);
-    padding:18px;
-    border-radius:14px;
-    box-shadow:0 0 30px rgba(0,0,0,.6);
+    background:#161616;border-radius:14px;padding:16px;
+    box-shadow:0 0 30px rgba(0,0,0,.6)
   }
   label{display:block;margin-top:12px;font-size:14px}
   input,select,button{width:100%;margin-top:6px}
   button{
-    background:var(--accent);
-    border:none;padding:12px;font-weight:bold;margin-top:14px;cursor:pointer;
-    border-radius:10px;
+    border:none;border-radius:10px;padding:12px;font-weight:bold;
+    background:#00ffae;color:#000;cursor:pointer;margin-top:14px
   }
-  button.secondary{background:var(--btn2);color:var(--text)}
+  button.secondary{background:#2b2b2b;color:#fff}
+  audio{width:100%;margin-top:12px}
   .row{display:flex;gap:8px;margin-top:10px}
   .row button{flex:1}
-  audio{width:100%;margin-top:12px}
-  .meter{text-align:center;opacity:.85;margin-top:8px}
-  footer{text-align:center;font-size:12px;opacity:.5;margin-top:22px}
-  .badge{
-    display:inline-block;padding:4px 8px;border-radius:999px;background:#222;
-    font-size:12px;opacity:.85;margin-left:6px
-  }
-
-  /* Visualizer */
-  .vizWrap{margin-top:12px}
-  canvas#viz{
-    width:100%;
-    height:250px;
-    background:#0f0f0f;
-    border-radius:12px;
-    border:1px solid var(--line);
-    touch-action:none;
-  }
-
-  /* Band panel */
-  .panel{
-    margin-top:10px;
-    display:grid;
-    grid-template-columns: 1fr 1fr;
-    gap:10px;
-  }
-  .mini{
-    background:#111;
-    border:1px solid #222;
-    border-radius:12px;
-    padding:10px;
-    font-size:13px;
-  }
-  .mini strong{display:block;margin-bottom:6px}
-  .kv{display:flex;justify-content:space-between;margin:4px 0;opacity:.9}
-  .hint{margin-top:8px;opacity:.65;font-size:12px;line-height:1.3}
-  .smallRow{display:flex;gap:8px;margin-top:8px}
-  .smallRow button{margin-top:0;padding:10px;border-radius:10px}
+  .hint{opacity:.7;font-size:12px;margin-top:8px;line-height:1.3}
 </style>
 </head>
-
 <body>
-<div class="container">
-
+<div class="wrap">
   <h1>MASTER BY WAREN</h1>
-  <div class="subtitle">Online Audio Mastering</div>
 
   <div class="card">
-
     <label>Subir audio (MP3 / WAV)</label>
-    <input type="file" accept="audio/*" id="file" />
+    <input type="file" id="file" accept="audio/*"/>
+
+    <audio id="player" controls></audio>
 
     <div class="row">
-      <button id="btnOriginal" class="secondary">Original</button>
+      <button class="secondary" id="btnOriginal">Original</button>
       <button id="btnMaster">Master</button>
     </div>
 
-    <label>Intensidad del master</label>
+    <label>Intensidad</label>
     <select id="intensity">
       <option value="soft">Suave</option>
-      <option value="medium" selected>Medio</option>
+      <option value="medium" selected>Media</option>
       <option value="hard">Fuerte</option>
     </select>
 
-    <label>Destino / Target Loudness</label>
+    <label>Destino</label>
     <select id="target">
       <option value="streaming" selected>Streaming</option>
-      <option value="club">Club</option>
       <option value="radio">Radio</option>
+      <option value="club">Club</option>
     </select>
 
-    <label>Stereo Width</label>
+    <label>Ancho estéreo</label>
     <select id="width">
       <option value="narrow">Estrecho</option>
       <option value="normal" selected>Normal</option>
       <option value="wide">Ancho</option>
     </select>
 
-    <label>Preset</label>
-    <select id="preset">
-      <option value="">Balanceado</option>
-      <option value="trap">Trap</option>
-      <option value="rock">Rock</option>
-      <option value="metal">Metal</option>
-      <option value="pop">Pop</option>
-    </select>
+    <button id="export">⬇️ Exportar WAV</button>
 
-    <div class="vizWrap">
-      <label>Visor EQ (6 bandas) — arrastra puntos</label>
-      <canvas id="viz"></canvas>
-
-      <div class="smallRow">
-        <button id="btnResetEQ" class="secondary">Reset EQ</button>
-        <button id="btnToggleBand" class="secondary">Activar/Desactivar banda</button>
-      </div>
-
-      <div class="panel">
-        <div class="mini">
-          <strong>Banda seleccionada: <span id="bandName">1</span></strong>
-          <div class="kv"><span>Freq</span><span id="readFreq">-- Hz</span></div>
-          <div class="kv"><span>Gain</span><span id="readGain">-- dB</span></div>
-          <div class="kv"><span>Q</span><span id="readQ">--</span></div>
-          <div class="kv"><span>Estado</span><span id="readOn">--</span></div>
-          <div class="hint">
-            • Arrastra punto: Freq/Gain<br/>
-            • Rueda: Q (más fino/grueso)<br/>
-            • Doble click/toque: ON/OFF<br/>
-            • Botón: ON/OFF de banda
-          </div>
-        </div>
-
-        <div class="mini">
-          <strong>Procesamiento</strong>
-          <label style="margin-top:0">Compresión</label>
-          <input type="range" id="compress" min="0" max="20" value="8" />
-
-          <label>Limitador (dB)</label>
-          <input type="range" id="limit" min="-20" max="0" value="-1" />
-
-          <div class="hint">
-            Nota: El medidor LUFS aquí es visual (demo). Exportar WAV real requiere backend.
-          </div>
-        </div>
-      </div>
+    <div class="hint">
+      • El WAV se procesa en tu backend de Render y se descarga.<br/>
+      • Si Render estaba dormido (free), el primer export puede demorar un poco.
     </div>
-
-    <audio controls></audio>
-
-    <div class="meter">
-      <span id="lufs">LUFS: --</span>
-      <span class="badge" id="targetBadge">Streaming</span>
-    </div>
-
-    <button id="btnExport">⬇️ Exportar WAV</button>
-
   </div>
-
-  <footer>© Master by Waren · GitHub Pages (Frontend)</footer>
 </div>
 
 <script>
-/* =========================
-   AUDIO ENGINE
-========================= */
-const audio = document.querySelector("audio");
 const fileInput = document.getElementById("file");
+const player = document.getElementById("player");
+const exportBtn = document.getElementById("export");
 
-const ctx = new (window.AudioContext || window.webkitAudioContext)();
-let source;
+// ✅ TU URL REAL (ya puesta)
+const BACKEND_URL = "https://master-backend-ab91.onrender.com/export-wav";
 
-const dryGain = ctx.createGain();
-const wetGain = ctx.createGain();
-dryGain.gain.value = 1;
-wetGain.gain.value = 0;
-
-// 6-band EQ (peaking)
-const eqBands = Array.from({length:6}, () => ctx.createBiquadFilter());
-eqBands.forEach(b => { b.type = "peaking"; b.Q.value = 1.0; b.gain.value = 0; });
-
-// Compressor + Limiter + Master gain
-const compressor = ctx.createDynamicsCompressor();
-const limiter = ctx.createDynamicsCompressor();
-limiter.ratio.value = 20;
-
-const masterGain = ctx.createGain();
-masterGain.gain.value = 1;
-
-// Stereo width (Haas delay simple)
-const splitter = ctx.createChannelSplitter(2);
-const merger = ctx.createChannelMerger(2);
-const delayL = ctx.createDelay(0.01);
-const delayR = ctx.createDelay(0.01);
-
-// Analyzer for FFT
-const analyser = ctx.createAnalyser();
-analyser.fftSize = 2048;
-const freqData = new Uint8Array(analyser.frequencyBinCount);
-
-function connectStereoWidth(nodeIn){
-  // nodeIn -> splitter -> delay per channel -> merger
-  nodeIn.connect(splitter);
-  splitter.connect(delayL, 0);
-  splitter.connect(delayR, 1);
-  delayL.connect(merger, 0, 0);
-  delayR.connect(merger, 0, 1);
-  return merger;
-}
-
-function buildChain(){
-  if(source) source.disconnect();
-
-  source = ctx.createMediaElementSource(audio);
-
-  // Dry path
-  source.connect(dryGain).connect(ctx.destination);
-
-  // Wet path: EQ -> comp -> limiter -> gain -> width -> analyser -> wetGain -> destination
-  source.connect(eqBands[0]);
-  for(let i=0;i<eqBands.length-1;i++){
-    eqBands[i].connect(eqBands[i+1]);
-  }
-  eqBands[eqBands.length-1].connect(compressor);
-  compressor.connect(limiter);
-  limiter.connect(masterGain);
-
-  const widthOut = connectStereoWidth(masterGain);
-  widthOut.connect(analyser);
-  analyser.connect(wetGain);
-  wetGain.connect(ctx.destination);
-}
-buildChain();
-
-fileInput.onchange = e => {
-  const f = e.target.files[0];
+fileInput.onchange = () => {
+  const f = fileInput.files[0];
   if(!f) return;
-  audio.src = URL.createObjectURL(f);
-  ctx.resume();
-  audio.play();
+  player.src = URL.createObjectURL(f);
+  player.play();
 };
 
-/* A/B */
-document.getElementById("btnOriginal").onclick = () => { dryGain.gain.value = 1; wetGain.gain.value = 0; };
-document.getElementById("btnMaster").onclick = () => { dryGain.gain.value = 0; wetGain.gain.value = 1; };
+// A/B solo informativo (el mastering real ocurre al exportar)
+document.getElementById("btnOriginal").onclick = () => alert("Modo Original (sin procesar)");
+document.getElementById("btnMaster").onclick   = () => alert("Modo Master (se aplica al exportar)");
 
-/* Compressor & Limiter controls */
-const compress = document.getElementById("compress");
-const limit = document.getElementById("limit");
-
-compress.oninput = e => { compressor.threshold.value = -Number(e.target.value); };
-limit.oninput = e => { limiter.threshold.value = Number(e.target.value); };
-
-/* Intensity presets */
-document.getElementById("intensity").onchange = e => {
-  const v = e.target.value;
-  if(v==="soft"){ compressor.threshold.value = -6; limiter.threshold.value = -2; masterGain.gain.value = 1.0; }
-  if(v==="medium"){ compressor.threshold.value = -10; limiter.threshold.value = -1; masterGain.gain.value = 1.05; }
-  if(v==="hard"){ compressor.threshold.value = -14; limiter.threshold.value = -0.5; masterGain.gain.value = 1.10; }
-};
-
-/* Target loudness badge (demo) */
-document.getElementById("target").onchange = e => {
-  document.getElementById("targetBadge").innerText = e.target.options[e.target.selectedIndex].text;
-};
-
-/* Stereo width (Haas) */
-document.getElementById("width").onchange = e => {
-  const v = e.target.value;
-  if(v==="narrow"){ delayL.delayTime.value = 0.000; delayR.delayTime.value = 0.000; }
-  if(v==="normal"){ delayL.delayTime.value = 0.000; delayR.delayTime.value = 0.000; }
-  if(v==="wide"){ delayL.delayTime.value = 0.002; delayR.delayTime.value = 0.004; }
-};
-
-/* Genre presets (affect EQ + comp a bit) */
-document.getElementById("preset").onchange = e => {
-  const p = e.target.value;
-
-  // Reset to balanced baseline (light)
-  setBand(0, 80,  1.0,  0);   // low
-  setBand(1, 200, 1.2,  0);
-  setBand(2, 800, 1.3,  0);
-  setBand(3, 2000,1.2,  0);
-  setBand(4, 6000,1.1,  0);
-  setBand(5, 12000,0.9, 0);  // air
-
-  if(p==="trap"){
-    setBand(0, 70,  1.0, +6);
-    setBand(4, 6500,1.0, +3);
-    compressor.threshold.value = -10;
-  }
-  if(p==="rock"){
-    setBand(1, 180, 1.0, +2);
-    setBand(3, 2500,1.0, +3);
-    compressor.threshold.value = -11;
-  }
-  if(p==="metal"){
-    setBand(0, 90,  1.0, +4);
-    setBand(3, 3500,1.1, +4);
-    setBand(4, 7500,1.0, +3);
-    compressor.threshold.value = -12;
-  }
-  if(p==="pop"){
-    setBand(2, 900, 1.2, -1);
-    setBand(4, 8000,1.0, +3);
-    setBand(5, 14000,0.9, +2);
-    compressor.threshold.value = -9;
+exportBtn.onclick = async () => {
+  if(!fileInput.files[0]){
+    alert("Sube un audio primero");
+    return;
   }
 
-  syncPointsFromFilters();
-  updateReadout();
-};
+  exportBtn.disabled = true;
+  exportBtn.textContent = "Procesando...";
 
-/* Export placeholder (backend) */
-document.getElementById("btnExport").onclick = () => {
-  alert("Export WAV real requiere backend.\nTu frontend ya está listo para conectarse.");
-};
+  const settings = {
+    intensity: document.getElementById("intensity").value,
+    target: document.getElementById("target").value,
+    width: document.getElementById("width").value
+  };
 
-/* Demo LUFS */
-setInterval(() => {
-  document.getElementById("lufs").innerText =
-    "LUFS: " + (-14 + Math.random()*2).toFixed(1);
-}, 500);
+  const fd = new FormData();
+  fd.append("audio", fileInput.files[0]);
+  fd.append("settings", JSON.stringify(settings));
 
-/* =========================
-   6-BAND EQ VISUALIZER
-========================= */
-const canvas = document.getElementById("viz");
-const g = canvas.getContext("2d");
+  try{
+    const res = await fetch(BACKEND_URL, { method:"POST", body: fd });
 
-const bandName = document.getElementById("bandName");
-const readFreq = document.getElementById("readFreq");
-const readGain = document.getElementById("readGain");
-const readQ = document.getElementById("readQ");
-const readOn = document.getElementById("readOn");
-
-const btnResetEQ = document.getElementById("btnResetEQ");
-const btnToggleBand = document.getElementById("btnToggleBand");
-
-// Points represent band filters
-let points = [
-  {id:1, x:0.12, y:0.52, on:true,  freq:  80,  gain: 0, q:1.0},
-  {id:2, x:0.26, y:0.50, on:true,  freq: 200,  gain: 0, q:1.2},
-  {id:3, x:0.44, y:0.50, on:true,  freq: 800,  gain: 0, q:1.3},
-  {id:4, x:0.60, y:0.50, on:true,  freq:2000,  gain: 0, q:1.2},
-  {id:5, x:0.76, y:0.50, on:true,  freq:6000,  gain: 0, q:1.1},
-  {id:6, x:0.90, y:0.48, on:true,  freq:12000, gain: 0, q:0.9},
-];
-
-let selected = 0; // index in points
-let dragging = null;
-
-function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
-
-// log mapping x<->freq
-function xToFreq(x){
-  const minF=20, maxF=20000;
-  const logMin=Math.log10(minF), logMax=Math.log10(maxF);
-  return Math.pow(10, logMin + x*(logMax-logMin));
-}
-function freqToX(f){
-  const minF=20, maxF=20000;
-  const logMin=Math.log10(minF), logMax=Math.log10(maxF);
-  return (Math.log10(f)-logMin)/(logMax-logMin);
-}
-// y mapping y<->gain (-24..+24)
-function yToGain(y){ return (0.5 - y) * 48; }
-function gainToY(gain){ return 0.5 - (gain/48); }
-
-function setBand(i, freq, q, gain){
-  eqBands[i].frequency.value = freq;
-  eqBands[i].Q.value = q;
-  eqBands[i].gain.value = gain;
-}
-
-function applyFromPoints(){
-  points.forEach((p, i) => {
-    eqBands[i].frequency.value = p.freq;
-    eqBands[i].Q.value = p.q;
-    eqBands[i].gain.value = p.on ? p.gain : 0;
-  });
-}
-
-function syncPointsFromFilters(){
-  points.forEach((p, i) => {
-    p.freq = eqBands[i].frequency.value;
-    p.q = eqBands[i].Q.value;
-    p.gain = eqBands[i].gain.value; // note: if off, might be 0
-    p.x = clamp(freqToX(p.freq), 0.03, 0.97);
-    p.y = clamp(gainToY(p.gain), 0.06, 0.94);
-  });
-}
-
-function updateReadout(){
-  const p = points[selected];
-  bandName.textContent = String(p.id);
-  readFreq.textContent = Math.round(p.freq) + " Hz";
-  readGain.textContent = p.gain.toFixed(1) + " dB";
-  readQ.textContent = p.q.toFixed(2);
-  readOn.textContent = p.on ? "ON" : "OFF";
-}
-
-function toggleSelected(){
-  points[selected].on = !points[selected].on;
-  applyFromPoints();
-  updateReadout();
-}
-
-btnToggleBand.onclick = toggleSelected;
-
-btnResetEQ.onclick = () => {
-  points = [
-    {id:1, x:0.12, y:0.52, on:true,  freq:  80,  gain: 0, q:1.0},
-    {id:2, x:0.26, y:0.50, on:true,  freq: 200,  gain: 0, q:1.2},
-    {id:3, x:0.44, y:0.50, on:true,  freq: 800,  gain: 0, q:1.3},
-    {id:4, x:0.60, y:0.50, on:true,  freq:2000,  gain: 0, q:1.2},
-    {id:5, x:0.76, y:0.50, on:true,  freq:6000,  gain: 0, q:1.1},
-    {id:6, x:0.90, y:0.48, on:true,  freq:12000, gain: 0, q:0.9},
-  ];
-  selected = 0;
-  applyFromPoints();
-  updateReadout();
-};
-
-function fitCanvas(){
-  const cssW = canvas.clientWidth;
-  const cssH = canvas.clientHeight;
-  const dpr = window.devicePixelRatio || 1;
-  const w = Math.floor(cssW * dpr);
-  const h = Math.floor(cssH * dpr);
-  if(canvas.width !== w || canvas.height !== h){
-    canvas.width = w; canvas.height = h;
-  }
-}
-
-function hit(p, mx, my, W, H){
-  const px = p.x * W;
-  const py = p.y * H;
-  return Math.hypot(mx-px, my-py) < (14 * (window.devicePixelRatio||1));
-}
-
-function getPos(e){
-  const r = canvas.getBoundingClientRect();
-  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
-  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
-  return {x:cx, y:cy, w:r.width, h:r.height};
-}
-
-function onDown(e){
-  const {x,y,w,h} = getPos(e);
-  // Convert to pixel space of DPR canvas
-  const dpr = window.devicePixelRatio || 1;
-  const mx = x*dpr, my = y*dpr;
-  const W = canvas.width, H = canvas.height;
-
-  // select closest hit
-  let found = -1;
-  for(let i=0;i<points.length;i++){
-    if(hit(points[i], mx, my, W, H)){ found=i; break; }
-  }
-  if(found !== -1){
-    selected = found;
-    dragging = points[found];
-    updateReadout();
-  }
-}
-
-function onMove(e){
-  if(!dragging) return;
-  e.preventDefault();
-  const {x,y,w,h} = getPos(e);
-  const dpr = window.devicePixelRatio || 1;
-  const mx = x*dpr, my = y*dpr;
-  const W = canvas.width, H = canvas.height;
-
-  dragging.x = clamp(mx / W, 0.03, 0.97);
-  dragging.y = clamp(my / H, 0.06, 0.94);
-
-  dragging.freq = xToFreq(dragging.x);
-  dragging.gain = clamp(yToGain(dragging.y), -24, 24);
-
-  // Apply to filters
-  applyFromPoints();
-  updateReadout();
-}
-
-function onUp(){ dragging = null; }
-
-let lastTap = 0;
-function onDoubleToggle(){
-  toggleSelected();
-}
-
-canvas.addEventListener("mousedown", onDown);
-canvas.addEventListener("mousemove", onMove);
-window.addEventListener("mouseup", onUp);
-
-canvas.addEventListener("touchstart", (e)=>{
-  const now = Date.now();
-  if(now - lastTap < 280) onDoubleToggle();
-  lastTap = now;
-  onDown(e);
-},{passive:true});
-
-canvas.addEventListener("touchmove", onMove, {passive:false});
-window.addEventListener("touchend", onUp);
-
-canvas.addEventListener("dblclick", onDoubleToggle);
-
-// Wheel to adjust Q for selected band
-canvas.addEventListener("wheel", (e)=>{
-  e.preventDefault();
-  const p = points[selected];
-  const delta = Math.sign(e.deltaY);
-  // smaller Q = wider band, bigger Q = narrower band
-  p.q = clamp(p.q + (delta>0 ? -0.08 : 0.08), 0.2, 12);
-  applyFromPoints();
-  updateReadout();
-}, {passive:false});
-
-function drawGrid(W,H){
-  g.strokeStyle = "#1e1e1e";
-  g.lineWidth = 1;
-  for(let i=1;i<6;i++){
-    g.beginPath();
-    g.moveTo(0, (H*i)/6);
-    g.lineTo(W, (H*i)/6);
-    g.stroke();
-  }
-  // 0 dB line
-  g.strokeStyle = "#2a2a2a";
-  g.beginPath();
-  g.moveTo(0, H*0.5);
-  g.lineTo(W, H*0.5);
-  g.stroke();
-}
-
-function drawSpectrum(W,H){
-  analyser.getByteFrequencyData(freqData);
-  const bars = 120;
-  const step = Math.floor(freqData.length / bars);
-
-  g.fillStyle = "rgba(120,120,120,0.65)";
-  for(let i=0;i<bars;i++){
-    const v = freqData[i*step] / 255;
-    const bh = v * (H*0.78);
-    const x = (i/bars)*W;
-    const bw = (W/bars)*0.9;
-    g.fillRect(x, H-bh, bw, bh);
-  }
-}
-
-// Smooth EQ curve: sum of gaussian bumps from each band
-function drawCurve(W,H){
-  g.strokeStyle = "#7ef7d3";
-  g.lineWidth = 2;
-  g.beginPath();
-
-  for(let i=0;i<=W;i++){
-    const x = i/W;
-
-    // base at 0 dB -> y=0.5
-    let y = 0.5;
-
-    for(const p of points){
-      if(!p.on) continue;
-      const width = 0.09 + (1 / (p.q+0.5)) * 0.10; // Q affects curve width visually
-      const bump = Math.exp(-Math.pow((x - p.x)/width, 2)) * (p.gain/24);
-      y -= 0.30 * bump;
+    if(!res.ok){
+      const t = await res.text();
+      throw new Error(t || ("HTTP " + res.status));
     }
 
-    const py = clamp(y, 0.06, 0.94) * H;
-    if(i===0) g.moveTo(i, py);
-    else g.lineTo(i, py);
-  }
-  g.stroke();
-}
+    const blob = await res.blob();
 
-function drawPoints(W,H){
-  for(let i=0;i<points.length;i++){
-    const p = points[i];
-    const px = p.x*W, py = p.y*H;
-
-    // Selected ring
-    if(i===selected){
-      g.strokeStyle = "rgba(0,255,174,.9)";
-      g.lineWidth = 3;
-      g.beginPath();
-      g.arc(px, py, 12, 0, Math.PI*2);
-      g.stroke();
+    // Si el backend devolviera error en HTML por alguna razón:
+    if(blob.type && !blob.type.includes("audio")){
+      const txt = await blob.text();
+      throw new Error(txt.slice(0, 400));
     }
 
-    g.fillStyle = p.on ? "#00ffae" : "#555";
-    g.beginPath();
-    g.arc(px, py, 8, 0, Math.PI*2);
-    g.fill();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "master.wav";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
 
-    g.fillStyle = "#0b0b0b";
-    g.font = `${Math.floor(11*(window.devicePixelRatio||1))}px Arial`;
-    g.textAlign = "center";
-    g.textBaseline = "middle";
-    g.fillText(String(p.id), px, py+0.5);
+  }catch(err){
+    alert("Error exportando:\n" + (err.message || err));
+  }finally{
+    exportBtn.disabled = false;
+    exportBtn.textContent = "⬇️ Exportar WAV";
   }
-}
-
-function render(){
-  requestAnimationFrame(render);
-  fitCanvas();
-  const W = canvas.width, H = canvas.height;
-
-  // Background
-  g.clearRect(0,0,W,H);
-  g.fillStyle = "#0f0f0f";
-  g.fillRect(0,0,W,H);
-
-  drawGrid(W,H);
-  drawSpectrum(W,H);
-  drawCurve(W,H);
-  drawPoints(W,H);
-}
-
-// initial apply
-applyFromPoints();
-updateReadout();
-render();
+};
 </script>
-
 </body>
 </html>
