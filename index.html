@@ -5,27 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Master by Waren</title>
 <style>
-  body{
-    margin:0;background:#0f0f0f;color:#fff;
-    font-family:Arial,Helvetica,sans-serif;
-  }
-  .wrap{max-width:520px;margin:auto;padding:20px}
+  body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial,Helvetica,sans-serif}
+  .wrap{max-width:560px;margin:auto;padding:20px}
   h1{text-align:center;margin:10px 0}
-  .card{
-    background:#161616;border-radius:14px;padding:16px;
-    box-shadow:0 0 30px rgba(0,0,0,.6)
-  }
+  .card{background:#161616;border-radius:14px;padding:16px;box-shadow:0 0 30px rgba(0,0,0,.6)}
   label{display:block;margin-top:12px;font-size:14px}
   input,select,button{width:100%;margin-top:6px}
-  button{
-    border:none;border-radius:10px;padding:12px;font-weight:bold;
-    background:#00ffae;color:#000;cursor:pointer;margin-top:14px
-  }
+  button{border:none;border-radius:10px;padding:12px;font-weight:bold;background:#00ffae;color:#000;cursor:pointer;margin-top:12px}
   button.secondary{background:#2b2b2b;color:#fff}
-  audio{width:100%;margin-top:12px}
   .row{display:flex;gap:8px;margin-top:10px}
   .row button{flex:1}
   .hint{opacity:.7;font-size:12px;margin-top:8px;line-height:1.3}
+  #wave{margin-top:12px;background:#0b0b0b;border:1px solid #222;border-radius:12px;padding:10px}
+  .miniRow{display:flex;gap:8px;margin-top:10px}
+  .miniRow button{margin-top:0}
 </style>
 </head>
 <body>
@@ -36,7 +29,12 @@
     <label>Subir audio (MP3 / WAV)</label>
     <input type="file" id="file" accept="audio/*"/>
 
-    <audio id="player" controls></audio>
+    <div id="wave"></div>
+
+    <div class="miniRow">
+      <button class="secondary" id="play">▶︎ Play/Pause</button>
+      <button class="secondary" id="stop">⏹ Stop</button>
+    </div>
 
     <div class="row">
       <button class="secondary" id="btnOriginal">Original</button>
@@ -67,28 +65,45 @@
     <button id="export">⬇️ Exportar WAV</button>
 
     <div class="hint">
-      • El WAV se procesa en tu backend de Render y se descarga.<br/>
-      • Si Render estaba dormido (free), el primer export puede demorar un poco.
+      • La onda se muestra con WaveSurfer (solo visual).<br/>
+      • El mastering real ocurre al exportar (backend Render).<br/>
+      • Primer export puede demorar si Render estaba dormido.
     </div>
   </div>
 </div>
 
+<!-- WaveSurfer CDN -->
+<script src="https://unpkg.com/wavesurfer.js@7"></script>
+
 <script>
 const fileInput = document.getElementById("file");
-const player = document.getElementById("player");
 const exportBtn = document.getElementById("export");
 
-// ✅ TU URL REAL (ya puesta)
+// ✅ TU URL REAL
 const BACKEND_URL = "https://master-backend-ab91.onrender.com/export-wav";
+
+let wavesurfer = WaveSurfer.create({
+  container: '#wave',
+  height: 110,
+  waveColor: '#3a3a3a',
+  progressColor: '#00ffae',
+  cursorColor: '#ffffff',
+  barWidth: 2,
+  barGap: 1,
+  normalize: true,
+});
 
 fileInput.onchange = () => {
   const f = fileInput.files[0];
   if(!f) return;
-  player.src = URL.createObjectURL(f);
-  player.play();
+  const url = URL.createObjectURL(f);
+  wavesurfer.load(url);
 };
 
-// A/B solo informativo (el mastering real ocurre al exportar)
+document.getElementById("play").onclick = () => wavesurfer.playPause();
+document.getElementById("stop").onclick = () => wavesurfer.stop();
+
+// A/B solo informativo (export aplica mastering)
 document.getElementById("btnOriginal").onclick = () => alert("Modo Original (sin procesar)");
 document.getElementById("btnMaster").onclick   = () => alert("Modo Master (se aplica al exportar)");
 
@@ -113,21 +128,13 @@ exportBtn.onclick = async () => {
 
   try{
     const res = await fetch(BACKEND_URL, { method:"POST", body: fd });
-
     if(!res.ok){
       const t = await res.text();
       throw new Error(t || ("HTTP " + res.status));
     }
-
     const blob = await res.blob();
-
-    // Si el backend devolviera error en HTML por alguna razón:
-    if(blob.type && !blob.type.includes("audio")){
-      const txt = await blob.text();
-      throw new Error(txt.slice(0, 400));
-    }
-
     const url = URL.createObjectURL(blob);
+
     const a = document.createElement("a");
     a.href = url;
     a.download = "master.wav";
