@@ -4,35 +4,70 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Master by Waren</title>
+
 <style>
-  body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial,Helvetica,sans-serif}
+  body{
+    margin:0;
+    background:#0f0f0f;
+    color:#fff;
+    font-family:Arial,Helvetica,sans-serif;
+  }
   .wrap{max-width:560px;margin:auto;padding:20px}
   h1{text-align:center;margin:10px 0}
-  .card{background:#161616;border-radius:14px;padding:16px;box-shadow:0 0 30px rgba(0,0,0,.6)}
+  .card{
+    background:#161616;
+    border-radius:14px;
+    padding:16px;
+    box-shadow:0 0 30px rgba(0,0,0,.6)
+  }
   label{display:block;margin-top:12px;font-size:14px}
   input,select,button{width:100%;margin-top:6px}
-  button{border:none;border-radius:10px;padding:12px;font-weight:bold;background:#00ffae;color:#000;cursor:pointer;margin-top:12px}
+  button{
+    border:none;
+    border-radius:10px;
+    padding:12px;
+    font-weight:bold;
+    background:#00ffae;
+    color:#000;
+    cursor:pointer;
+    margin-top:12px
+  }
   button.secondary{background:#2b2b2b;color:#fff}
   .row{display:flex;gap:8px;margin-top:10px}
   .row button{flex:1}
   .hint{opacity:.7;font-size:12px;margin-top:8px;line-height:1.3}
-  #wave{margin-top:12px;background:#0b0b0b;border:1px solid #222;border-radius:12px;padding:10px}
+  #wave{
+    margin-top:12px;
+    background:#0b0b0b;
+    border:1px solid #222;
+    border-radius:12px;
+    padding:10px
+  }
   .miniRow{display:flex;gap:8px;margin-top:10px}
   .miniRow button{margin-top:0}
+  .toggle{
+    margin-top:14px;
+    display:flex;
+    align-items:center;
+    gap:8px;
+    font-size:14px
+  }
 </style>
 </head>
+
 <body>
 <div class="wrap">
   <h1>MASTER BY WAREN</h1>
 
   <div class="card">
+
     <label>Subir audio (MP3 / WAV)</label>
     <input type="file" id="file" accept="audio/*"/>
 
     <div id="wave"></div>
 
     <div class="miniRow">
-      <button class="secondary" id="play">▶︎ Play/Pause</button>
+      <button class="secondary" id="play">▶︎ Play / Pause</button>
       <button class="secondary" id="stop">⏹ Stop</button>
     </div>
 
@@ -41,21 +76,26 @@
       <button id="btnMaster">Master</button>
     </div>
 
-    <label>Intensidad</label>
+    <div class="toggle">
+      <input type="checkbox" id="aiMode" checked />
+      <span>🤖 Modo IA automático</span>
+    </div>
+
+    <label>Intensidad (manual)</label>
     <select id="intensity">
       <option value="soft">Suave</option>
       <option value="medium" selected>Media</option>
       <option value="hard">Fuerte</option>
     </select>
 
-    <label>Destino</label>
+    <label>Destino (manual)</label>
     <select id="target">
       <option value="streaming" selected>Streaming</option>
       <option value="radio">Radio</option>
       <option value="club">Club</option>
     </select>
 
-    <label>Ancho estéreo</label>
+    <label>Ancho estéreo (manual)</label>
     <select id="width">
       <option value="narrow">Estrecho</option>
       <option value="normal" selected>Normal</option>
@@ -65,23 +105,26 @@
     <button id="export">⬇️ Exportar WAV</button>
 
     <div class="hint">
-      • La onda se muestra con WaveSurfer (solo visual).<br/>
-      • El mastering real ocurre al exportar (backend Render).<br/>
+      • IA ON: el sistema analiza y decide solo.<br/>
+      • IA OFF: usa los valores manuales.<br/>
       • Primer export puede demorar si Render estaba dormido.
     </div>
+
   </div>
 </div>
 
-<!-- WaveSurfer CDN -->
+<!-- WaveSurfer -->
 <script src="https://unpkg.com/wavesurfer.js@7"></script>
 
 <script>
-const fileInput = document.getElementById("file");
-const exportBtn = document.getElementById("export");
-
-// ✅ TU URL REAL
+/* =====================
+   CONFIG
+===================== */
 const BACKEND_URL = "https://master-backend-ab91.onrender.com/export-wav";
 
+/* =====================
+   WAVEFORM
+===================== */
 let wavesurfer = WaveSurfer.create({
   container: '#wave',
   height: 110,
@@ -93,6 +136,7 @@ let wavesurfer = WaveSurfer.create({
   normalize: true,
 });
 
+const fileInput = document.getElementById("file");
 fileInput.onchange = () => {
   const f = fileInput.files[0];
   if(!f) return;
@@ -103,28 +147,34 @@ fileInput.onchange = () => {
 document.getElementById("play").onclick = () => wavesurfer.playPause();
 document.getElementById("stop").onclick = () => wavesurfer.stop();
 
-// A/B solo informativo (export aplica mastering)
-document.getElementById("btnOriginal").onclick = () => alert("Modo Original (sin procesar)");
-document.getElementById("btnMaster").onclick   = () => alert("Modo Master (se aplica al exportar)");
+/* =====================
+   EXPORT WAV
+===================== */
+document.getElementById("export").onclick = async () => {
 
-exportBtn.onclick = async () => {
   if(!fileInput.files[0]){
     alert("Sube un audio primero");
     return;
   }
 
-  exportBtn.disabled = true;
-  exportBtn.textContent = "Procesando...";
+  const aiOn = document.getElementById("aiMode").checked;
 
-  const settings = {
-    intensity: document.getElementById("intensity").value,
-    target: document.getElementById("target").value,
-    width: document.getElementById("width").value
-  };
+  let settings = {};
+  if(!aiOn){
+    settings = {
+      intensity: document.getElementById("intensity").value,
+      target: document.getElementById("target").value,
+      width: document.getElementById("width").value
+    };
+  }
 
   const fd = new FormData();
   fd.append("audio", fileInput.files[0]);
   fd.append("settings", JSON.stringify(settings));
+
+  const btn = document.getElementById("export");
+  btn.disabled = true;
+  btn.textContent = "Procesando...";
 
   try{
     const res = await fetch(BACKEND_URL, { method:"POST", body: fd });
@@ -132,6 +182,7 @@ exportBtn.onclick = async () => {
       const t = await res.text();
       throw new Error(t || ("HTTP " + res.status));
     }
+
     const blob = await res.blob();
     const url = URL.createObjectURL(blob);
 
@@ -144,12 +195,13 @@ exportBtn.onclick = async () => {
     URL.revokeObjectURL(url);
 
   }catch(err){
-    alert("Error exportando:\n" + (err.message || err));
+    alert("Error exportando:\n" + err.message);
   }finally{
-    exportBtn.disabled = false;
-    exportBtn.textContent = "⬇️ Exportar WAV";
+    btn.disabled = false;
+    btn.textContent = "⬇️ Exportar WAV";
   }
 };
 </script>
+
 </body>
 </html>
