@@ -6,52 +6,49 @@
 <title>Master by Waren</title>
 
 <style>
-  body{
-    margin:0;
-    background:#0f0f0f;
-    color:#fff;
-    font-family:Arial,Helvetica,sans-serif;
-  }
-  .wrap{max-width:560px;margin:auto;padding:20px}
+  body{margin:0;background:#0f0f0f;color:#fff;font-family:Arial,Helvetica,sans-serif}
+  .wrap{max-width:620px;margin:auto;padding:20px}
   h1{text-align:center;margin:10px 0}
-  .card{
-    background:#161616;
-    border-radius:14px;
-    padding:16px;
-    box-shadow:0 0 30px rgba(0,0,0,.6)
-  }
+  .card{background:#161616;border-radius:14px;padding:16px;box-shadow:0 0 30px rgba(0,0,0,.6)}
   label{display:block;margin-top:12px;font-size:14px}
   input,select,button{width:100%;margin-top:6px}
-  button{
-    border:none;
-    border-radius:10px;
-    padding:12px;
-    font-weight:bold;
-    background:#00ffae;
-    color:#000;
-    cursor:pointer;
-    margin-top:12px
-  }
+  button{border:none;border-radius:10px;padding:12px;font-weight:bold;background:#00ffae;color:#000;cursor:pointer;margin-top:12px}
   button.secondary{background:#2b2b2b;color:#fff}
   .row{display:flex;gap:8px;margin-top:10px}
   .row button{flex:1}
   .hint{opacity:.7;font-size:12px;margin-top:8px;line-height:1.3}
-  #wave{
-    margin-top:12px;
+  #wave{margin-top:12px;background:#0b0b0b;border:1px solid #222;border-radius:12px;padding:10px}
+  .miniRow{display:flex;gap:8px;margin-top:10px}
+  .miniRow button{margin-top:0}
+  .toggle{margin-top:14px;display:flex;align-items:center;gap:8px;font-size:14px}
+
+  /* EQ Canvas */
+  #eqCanvas{
+    width:100%;
+    height:240px;
     background:#0b0b0b;
     border:1px solid #222;
     border-radius:12px;
-    padding:10px
+    margin-top:12px;
+    touch-action:none;
   }
-  .miniRow{display:flex;gap:8px;margin-top:10px}
-  .miniRow button{margin-top:0}
-  .toggle{
-    margin-top:14px;
-    display:flex;
-    align-items:center;
-    gap:8px;
-    font-size:14px
+  .panel{
+    margin-top:10px;
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
   }
+  .mini{
+    background:#111;border:1px solid #222;border-radius:12px;padding:10px;font-size:13px
+  }
+  .kv{display:flex;justify-content:space-between;margin:4px 0;opacity:.92}
+
+  /* Progress UI */
+  .progressWrap{margin-top:12px;background:#0b0b0b;border:1px solid #222;border-radius:12px;padding:10px;display:none}
+  .progressTitle{font-size:12px;opacity:.75;margin-bottom:8px}
+  .bar{height:12px;background:#1b1b1b;border-radius:999px;overflow:hidden;border:1px solid #222}
+  .fill{height:100%;width:0%;background:#00ffae;border-radius:999px;transition:width .15s linear}
+  .progressText{margin-top:8px;font-size:12px;opacity:.9}
 </style>
 </head>
 
@@ -60,7 +57,6 @@
   <h1>MASTER BY WAREN</h1>
 
   <div class="card">
-
     <label>Subir audio (MP3 / WAV)</label>
     <input type="file" id="file" accept="audio/*"/>
 
@@ -71,49 +67,75 @@
       <button class="secondary" id="stop">⏹ Stop</button>
     </div>
 
-    <div class="row">
-      <button class="secondary" id="btnOriginal">Original</button>
-      <button id="btnMaster">Master</button>
-    </div>
-
     <div class="toggle">
       <input type="checkbox" id="aiMode" checked />
-      <span>🤖 Modo IA automático</span>
+      <span>🤖 Modo IA automático (decide intensidad/target/width)</span>
     </div>
 
-    <label>Intensidad (manual)</label>
-    <select id="intensity">
-      <option value="soft">Suave</option>
-      <option value="medium" selected>Media</option>
-      <option value="hard">Fuerte</option>
-    </select>
+    <label>EQ visual (6 bandas) — arrastra puntos</label>
+    <canvas id="eqCanvas"></canvas>
 
-    <label>Destino (manual)</label>
-    <select id="target">
-      <option value="streaming" selected>Streaming</option>
-      <option value="radio">Radio</option>
-      <option value="club">Club</option>
-    </select>
+    <div class="panel">
+      <div class="mini">
+        <strong>Banda seleccionada: <span id="bandName">1</span></strong>
+        <div class="kv"><span>Freq</span><span id="readFreq">-- Hz</span></div>
+        <div class="kv"><span>Gain</span><span id="readGain">-- dB</span></div>
+        <div class="kv"><span>Q</span><span id="readQ">--</span></div>
+        <div class="kv"><span>Estado</span><span id="readOn">--</span></div>
+        <div class="hint">
+          • Arrastrar: freq/gain<br/>
+          • Rueda: Q<br/>
+          • Doble toque/click: ON/OFF
+        </div>
+        <div class="miniRow">
+          <button class="secondary" id="resetEQ">Reset EQ</button>
+          <button class="secondary" id="toggleBand">ON/OFF</button>
+        </div>
+      </div>
 
-    <label>Ancho estéreo (manual)</label>
-    <select id="width">
-      <option value="narrow">Estrecho</option>
-      <option value="normal" selected>Normal</option>
-      <option value="wide">Ancho</option>
-    </select>
+      <div class="mini">
+        <label>Intensidad (manual)</label>
+        <select id="intensity">
+          <option value="soft">Suave</option>
+          <option value="medium" selected>Media</option>
+          <option value="hard">Fuerte</option>
+        </select>
+
+        <label>Destino (manual)</label>
+        <select id="target">
+          <option value="streaming" selected>Streaming</option>
+          <option value="radio">Radio</option>
+          <option value="club">Club</option>
+        </select>
+
+        <label>Ancho estéreo (manual)</label>
+        <select id="width">
+          <option value="narrow">Estrecho</option>
+          <option value="normal" selected>Normal</option>
+          <option value="wide">Ancho</option>
+        </select>
+
+        <div class="hint">
+          Si IA está ON, el backend decide estos 3. El EQ siempre se aplica.
+        </div>
+      </div>
+    </div>
 
     <button id="export">⬇️ Exportar WAV</button>
 
-    <div class="hint">
-      • IA ON: el sistema analiza y decide solo.<br/>
-      • IA OFF: usa los valores manuales.<br/>
-      • Primer export puede demorar si Render estaba dormido.
+    <div class="progressWrap" id="progressWrap">
+      <div class="progressTitle" id="progressTitle">Progreso</div>
+      <div class="bar"><div class="fill" id="progressFill"></div></div>
+      <div class="progressText" id="progressText">Preparando…</div>
     </div>
 
+    <div class="hint">
+      • Primer export puede demorar si Render estaba dormido (Free).<br/>
+      • El EQ visual se envía al backend y afecta el WAV final.
+    </div>
   </div>
 </div>
 
-<!-- WaveSurfer -->
 <script src="https://unpkg.com/wavesurfer.js@7"></script>
 
 <script>
@@ -148,10 +170,259 @@ document.getElementById("play").onclick = () => wavesurfer.playPause();
 document.getElementById("stop").onclick = () => wavesurfer.stop();
 
 /* =====================
-   EXPORT WAV
+   EQ VISUAL (6 bandas)
 ===================== */
-document.getElementById("export").onclick = async () => {
+const canvas = document.getElementById("eqCanvas");
+const g = canvas.getContext("2d");
 
+const bandName = document.getElementById("bandName");
+const readFreq = document.getElementById("readFreq");
+const readGain = document.getElementById("readGain");
+const readQ = document.getElementById("readQ");
+const readOn = document.getElementById("readOn");
+
+let points = [
+  {id:1, x:0.12, y:0.52, on:true,  freq:  80,  gain: 0, q:1.0},
+  {id:2, x:0.26, y:0.50, on:true,  freq: 200,  gain: 0, q:1.2},
+  {id:3, x:0.44, y:0.50, on:true,  freq: 800,  gain: 0, q:1.3},
+  {id:4, x:0.60, y:0.50, on:true,  freq:2000,  gain: 0, q:1.2},
+  {id:5, x:0.76, y:0.50, on:true,  freq:6000,  gain: 0, q:1.1},
+  {id:6, x:0.90, y:0.48, on:true,  freq:12000, gain: 0, q:0.9},
+];
+let selected = 0;
+let dragging = null;
+
+function clamp(v,a,b){ return Math.max(a,Math.min(b,v)); }
+function xToFreq(x){
+  const minF=20, maxF=20000;
+  const logMin=Math.log10(minF), logMax=Math.log10(maxF);
+  return Math.pow(10, logMin + x*(logMax-logMin));
+}
+function freqToX(f){
+  const minF=20, maxF=20000;
+  const logMin=Math.log10(minF), logMax=Math.log10(maxF);
+  return (Math.log10(f)-logMin)/(logMax-logMin);
+}
+function yToGain(y){ return (0.5 - y) * 48; }
+function gainToY(gain){ return 0.5 - (gain/48); }
+
+function updateReadout(){
+  const p = points[selected];
+  bandName.textContent = String(p.id);
+  readFreq.textContent = Math.round(p.freq) + " Hz";
+  readGain.textContent = p.gain.toFixed(1) + " dB";
+  readQ.textContent = p.q.toFixed(2);
+  readOn.textContent = p.on ? "ON" : "OFF";
+}
+function toggleSelected(){
+  points[selected].on = !points[selected].on;
+  updateReadout();
+}
+document.getElementById("toggleBand").onclick = toggleSelected;
+
+document.getElementById("resetEQ").onclick = () => {
+  points = [
+    {id:1, x:0.12, y:0.52, on:true,  freq:  80,  gain: 0, q:1.0},
+    {id:2, x:0.26, y:0.50, on:true,  freq: 200,  gain: 0, q:1.2},
+    {id:3, x:0.44, y:0.50, on:true,  freq: 800,  gain: 0, q:1.3},
+    {id:4, x:0.60, y:0.50, on:true,  freq:2000,  gain: 0, q:1.2},
+    {id:5, x:0.76, y:0.50, on:true,  freq:6000,  gain: 0, q:1.1},
+    {id:6, x:0.90, y:0.48, on:true,  freq:12000, gain: 0, q:0.9},
+  ];
+  selected = 0;
+  updateReadout();
+};
+
+function fitCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  const w = Math.floor(canvas.clientWidth * dpr);
+  const h = Math.floor(canvas.clientHeight * dpr);
+  if(canvas.width !== w || canvas.height !== h){
+    canvas.width = w; canvas.height = h;
+  }
+}
+
+function hit(p, mx, my, W, H){
+  const px = p.x * W;
+  const py = p.y * H;
+  return Math.hypot(mx-px, my-py) < (14 * (window.devicePixelRatio||1));
+}
+
+function getPos(e){
+  const r = canvas.getBoundingClientRect();
+  const cx = (e.touches ? e.touches[0].clientX : e.clientX) - r.left;
+  const cy = (e.touches ? e.touches[0].clientY : e.clientY) - r.top;
+  return {x:cx, y:cy};
+}
+
+function onDown(e){
+  const {x,y} = getPos(e);
+  const dpr = window.devicePixelRatio || 1;
+  const mx = x*dpr, my = y*dpr;
+  const W = canvas.width, H = canvas.height;
+
+  let found = -1;
+  for(let i=0;i<points.length;i++){
+    if(hit(points[i], mx, my, W, H)){ found=i; break; }
+  }
+  if(found !== -1){
+    selected = found;
+    dragging = points[found];
+    updateReadout();
+  }
+}
+
+function onMove(e){
+  if(!dragging) return;
+  e.preventDefault();
+  const {x,y} = getPos(e);
+  const dpr = window.devicePixelRatio || 1;
+  const mx = x*dpr, my = y*dpr;
+  const W = canvas.width, H = canvas.height;
+
+  dragging.x = clamp(mx / W, 0.03, 0.97);
+  dragging.y = clamp(my / H, 0.06, 0.94);
+
+  dragging.freq = xToFreq(dragging.x);
+  dragging.gain = clamp(yToGain(dragging.y), -24, 24);
+  updateReadout();
+}
+
+function onUp(){ dragging = null; }
+
+let lastTap = 0;
+function onDoubleToggle(){ toggleSelected(); }
+
+canvas.addEventListener("mousedown", onDown);
+canvas.addEventListener("mousemove", onMove);
+window.addEventListener("mouseup", onUp);
+
+canvas.addEventListener("touchstart", (e)=>{
+  const now = Date.now();
+  if(now - lastTap < 280) onDoubleToggle();
+  lastTap = now;
+  onDown(e);
+},{passive:true});
+canvas.addEventListener("touchmove", onMove, {passive:false});
+window.addEventListener("touchend", onUp);
+canvas.addEventListener("dblclick", onDoubleToggle);
+
+canvas.addEventListener("wheel", (e)=>{
+  e.preventDefault();
+  const p = points[selected];
+  const delta = Math.sign(e.deltaY);
+  p.q = clamp(p.q + (delta>0 ? -0.10 : 0.10), 0.2, 12);
+  updateReadout();
+},{passive:false});
+
+function drawGrid(W,H){
+  g.strokeStyle = "#1e1e1e";
+  g.lineWidth = 1;
+  for(let i=1;i<6;i++){
+    g.beginPath();
+    g.moveTo(0, (H*i)/6);
+    g.lineTo(W, (H*i)/6);
+    g.stroke();
+  }
+  g.strokeStyle = "#2a2a2a";
+  g.beginPath();
+  g.moveTo(0, H*0.5);
+  g.lineTo(W, H*0.5);
+  g.stroke();
+}
+
+function drawCurve(W,H){
+  g.strokeStyle = "#00ffae";
+  g.lineWidth = 2;
+  g.beginPath();
+
+  for(let i=0;i<=W;i++){
+    const x = i/W;
+    let y = 0.5;
+
+    for(const p of points){
+      if(!p.on) continue;
+      const width = 0.09 + (1 / (p.q+0.5)) * 0.10;
+      const bump = Math.exp(-Math.pow((x - p.x)/width, 2)) * (p.gain/24);
+      y -= 0.30 * bump;
+    }
+
+    const py = clamp(y, 0.06, 0.94) * H;
+    if(i===0) g.moveTo(i, py);
+    else g.lineTo(i, py);
+  }
+  g.stroke();
+}
+
+function drawPoints(W,H){
+  for(let i=0;i<points.length;i++){
+    const p = points[i];
+    const px = p.x*W, py = p.y*H;
+
+    if(i===selected){
+      g.strokeStyle = "rgba(0,255,174,.9)";
+      g.lineWidth = 3;
+      g.beginPath();
+      g.arc(px, py, 12, 0, Math.PI*2);
+      g.stroke();
+    }
+
+    g.fillStyle = p.on ? "#00ffae" : "#555";
+    g.beginPath();
+    g.arc(px, py, 8, 0, Math.PI*2);
+    g.fill();
+
+    g.fillStyle = "#0b0b0b";
+    g.font = `${Math.floor(11*(window.devicePixelRatio||1))}px Arial`;
+    g.textAlign = "center";
+    g.textBaseline = "middle";
+    g.fillText(String(p.id), px, py+0.5);
+  }
+}
+
+function renderEq(){
+  requestAnimationFrame(renderEq);
+  fitCanvas();
+  const W = canvas.width, H = canvas.height;
+
+  g.clearRect(0,0,W,H);
+  g.fillStyle = "#0b0b0b";
+  g.fillRect(0,0,W,H);
+
+  drawGrid(W,H);
+  drawCurve(W,H);
+  drawPoints(W,H);
+}
+updateReadout();
+renderEq();
+
+/* =====================
+   PROGRESS
+===================== */
+const progressWrap  = document.getElementById("progressWrap");
+const progressFill  = document.getElementById("progressFill");
+const progressText  = document.getElementById("progressText");
+const progressTitle = document.getElementById("progressTitle");
+
+function showProgress(title, pct, text){
+  progressWrap.style.display = "block";
+  progressTitle.textContent = title;
+  progressFill.style.width = Math.max(0, Math.min(100, pct)) + "%";
+  progressText.textContent = text;
+}
+function hideProgress(){
+  progressWrap.style.display = "none";
+  progressFill.style.width = "0%";
+  progressText.textContent = "";
+}
+function fmtMB(bytes){
+  return (bytes / (1024*1024)).toFixed(2) + " MB";
+}
+
+/* =====================
+   EXPORT WAV (envía EQ)
+===================== */
+document.getElementById("export").onclick = () => {
   if(!fileInput.files[0]){
     alert("Sube un audio primero");
     return;
@@ -159,13 +430,20 @@ document.getElementById("export").onclick = async () => {
 
   const aiOn = document.getElementById("aiMode").checked;
 
-  let settings = {};
+  // Siempre enviamos bands (EQ). Si IA ON, backend decide intensidad/target/width.
+  const settings = {
+    bands: points.map(p => ({
+      freq: p.freq,
+      gain: p.gain,
+      q: p.q,
+      on: p.on
+    }))
+  };
+
   if(!aiOn){
-    settings = {
-      intensity: document.getElementById("intensity").value,
-      target: document.getElementById("target").value,
-      width: document.getElementById("width").value
-    };
+    settings.intensity = document.getElementById("intensity").value;
+    settings.target = document.getElementById("target").value;
+    settings.width = document.getElementById("width").value;
   }
 
   const fd = new FormData();
@@ -176,30 +454,71 @@ document.getElementById("export").onclick = async () => {
   btn.disabled = true;
   btn.textContent = "Procesando...";
 
-  try{
-    const res = await fetch(BACKEND_URL, { method:"POST", body: fd });
-    if(!res.ok){
-      const t = await res.text();
-      throw new Error(t || ("HTTP " + res.status));
+  showProgress("Subiendo audio…", 0, "0%");
+
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", BACKEND_URL, true);
+  xhr.responseType = "blob";
+
+  xhr.upload.onprogress = (e) => {
+    if(!e.lengthComputable) {
+      showProgress("Subiendo audio…", 20, "Subiendo…");
+      return;
     }
+    const pct = (e.loaded / e.total) * 100;
+    showProgress("Subiendo audio…", pct, `${pct.toFixed(0)}% (${fmtMB(e.loaded)} / ${fmtMB(e.total)})`);
+  };
 
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
+  xhr.upload.onload = () => {
+    showProgress("Procesando…", 85, "El servidor está masterizando…");
+  };
 
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "master.wav";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
-
-  }catch(err){
-    alert("Error exportando:\n" + err.message);
-  }finally{
+  xhr.onerror = () => {
     btn.disabled = false;
     btn.textContent = "⬇️ Exportar WAV";
-  }
+    hideProgress();
+    alert("Error de red (no se pudo conectar).");
+  };
+
+  xhr.onprogress = () => {
+    showProgress("Procesando / Descargando…", 95, "Recibiendo archivo…");
+  };
+
+  xhr.onload = async () => {
+    try{
+      if(xhr.status < 200 || xhr.status >= 300){
+        let msg = "Error HTTP " + xhr.status;
+        try{
+          const t = await xhr.response.text();
+          msg = t.slice(0, 400) || msg;
+        }catch(e){}
+        throw new Error(msg);
+      }
+
+      showProgress("Listo ✅", 100, "Descarga iniciada");
+
+      const blob = xhr.response;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "master.wav";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      setTimeout(() => hideProgress(), 900);
+
+    }catch(err){
+      hideProgress();
+      alert("Error exportando:\n" + (err.message || err));
+    }finally{
+      btn.disabled = false;
+      btn.textContent = "⬇️ Exportar WAV";
+    }
+  };
+
+  xhr.send(fd);
 };
 </script>
 
