@@ -1,206 +1,106 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
+<meta charset="UTF-8" />
+<title>Audio Mastering</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>MASTER BY WAREN</title>
+
 <style>
-  body{margin:0;background:#0b0b0b;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto}
-  .wrap{max-width:680px;margin:auto;padding:18px}
-  h1{text-align:center;margin:14px 0;font-size:40px;letter-spacing:1px}
-  .card{background:#151515;border-radius:18px;padding:18px;box-shadow:0 0 40px rgba(0,0,0,.6)}
-  label{display:block;margin-top:10px;font-size:13px;opacity:.9}
-  input,select,button{width:100%}
-  input,select{margin-top:6px;padding:10px;border-radius:10px;border:1px solid #2a2a2a;background:#0f0f0f;color:#fff}
-  button{margin-top:14px;padding:14px;border:none;border-radius:12px;background:#00ffa2;color:#000;font-size:18px;font-weight:800}
-  button:disabled{opacity:.6}
-  canvas{width:100%;height:120px;background:#0f0f0f;border:1px solid #222;border-radius:12px;margin-top:12px}
-  .progressWrap{margin-top:12px;background:#0f0f0f;border:1px solid #222;border-radius:12px;padding:10px;display:none}
-  .bar{height:12px;background:#1b1b1b;border-radius:999px;overflow:hidden;border:1px solid #222}
-  .fill{height:100%;width:0%;background:#00ffa2;transition:width .15s}
-  .txt{margin-top:8px;font-size:12px;opacity:.9}
-  .hint{margin-top:10px;font-size:12px;opacity:.7;line-height:1.35}
+body {
+    background: #0e0e0e;
+    color: #fff;
+    font-family: Arial, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+}
+.container {
+    background: #1a1a1a;
+    padding: 30px;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 420px;
+    text-align: center;
+}
+input[type="file"] {
+    margin: 20px 0;
+}
+button {
+    width: 100%;
+    padding: 12px;
+    background: #00e5ff;
+    border: none;
+    border-radius: 5px;
+    font-size: 16px;
+    cursor: pointer;
+}
+button:disabled {
+    opacity: 0.5;
+}
+.status {
+    margin-top: 15px;
+}
 </style>
 </head>
+
 <body>
-<div class="wrap">
-  <h1>MASTER BY WAREN</h1>
-  <div class="card">
-    <label>Subir audio (MP3 / WAV)</label>
+<div class="container">
+    <h2>Masterizado WAV</h2>
+
     <input type="file" id="audioFile" accept="audio/*">
+    <button id="sendBtn">Masterizar</button>
 
-    <canvas id="wave"></canvas>
-
-    <label>Intensidad</label>
-    <select id="intensity">
-      <option value="soft">Suave</option>
-      <option value="medium" selected>Media</option>
-      <option value="hard">Fuerte</option>
-    </select>
-
-    <label>Destino</label>
-    <select id="target">
-      <option value="streaming" selected>Streaming</option>
-      <option value="radio">Radio</option>
-      <option value="club">Club</option>
-    </select>
-
-    <label>Ancho estéreo</label>
-    <select id="width">
-      <option value="narrow">Angosto</option>
-      <option value="normal" selected>Normal</option>
-      <option value="wide">Amplio</option>
-    </select>
-
-    <button id="exportBtn">⬇ Exportar WAV</button>
-
-    <div class="progressWrap" id="progressWrap">
-      <div class="bar"><div class="fill" id="fill"></div></div>
-      <div class="txt" id="status">Listo</div>
-    </div>
-
-    <div class="hint">
-      • Si Render estaba dormido, el primer intento puede tardar.<br>
-      • Si usas Brave, prueba desactivar Shields (león 🦁) si bloquea.
-    </div>
-  </div>
+    <div class="status" id="status"></div>
 </div>
 
 <script>
-const BACKEND = "https://master-backend-ab91.onrender.com";
+const backendURL = "https://master-backend-ab91.onrender.com/master";
 
-const fileInput = document.getElementById("audioFile");
-const exportBtn = document.getElementById("exportBtn");
-const progressWrap = document.getElementById("progressWrap");
-const fill = document.getElementById("fill");
-const statusTxt = document.getElementById("status");
+const button = document.getElementById("sendBtn");
+const status = document.getElementById("status");
 
-const canvas = document.getElementById("wave");
-const ctx = canvas.getContext("2d");
-
-function setProg(p, t){
-  progressWrap.style.display = "block";
-  fill.style.width = Math.max(0,Math.min(100,p)) + "%";
-  statusTxt.textContent = t;
-}
-function hideProg(){
-  progressWrap.style.display = "none";
-  fill.style.width = "0%";
-  statusTxt.textContent = "Listo";
-}
-
-async function wake(){
-  try{
-    await fetch(BACKEND + "/health", { cache:"no-store" });
-    return true;
-  }catch{
-    return false;
-  }
-}
-
-function drawWave(file){
-  const r = new FileReader();
-  r.onload = async () => {
-    const ac = new (window.AudioContext||window.webkitAudioContext)();
-    const buf = await ac.decodeAudioData(r.result);
-    const data = buf.getChannelData(0);
-    const dpr = window.devicePixelRatio||1;
-    canvas.width = Math.floor(canvas.clientWidth*dpr);
-    canvas.height = Math.floor(canvas.clientHeight*dpr);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle = "#00ffa2";
-    ctx.lineWidth = 2*dpr;
-    ctx.beginPath();
-    const step = Math.max(1, Math.floor(data.length / canvas.width));
-    for(let i=0;i<canvas.width;i++){
-      const v = data[i*step] * 0.5;
-      const y = canvas.height/2 + v * canvas.height*0.9;
-      if(i===0) ctx.moveTo(i,y); else ctx.lineTo(i,y);
+button.onclick = async () => {
+    const fileInput = document.getElementById("audioFile");
+    if (!fileInput.files.length) {
+        alert("Selecciona un archivo");
+        return;
     }
-    ctx.stroke();
-  };
-  r.readAsArrayBuffer(file);
-}
 
-fileInput.addEventListener("change", ()=>{
-  if(fileInput.files[0]) drawWave(fileInput.files[0]);
-});
+    button.disabled = true;
+    status.textContent = "Procesando audio...";
 
-exportBtn.addEventListener("click", async ()=>{
-  if(!fileInput.files[0]) return alert("Selecciona un audio primero.");
+    const formData = new FormData();
+    formData.append("file", fileInput.files[0]);
 
-  exportBtn.disabled = true;
-  setProg(8,"Conectando…");
+    try {
+        const response = await fetch(backendURL, {
+            method: "POST",
+            body: formData
+        });
 
-  const ok = await wake();
-  if(!ok){
-    exportBtn.disabled = false;
-    hideProg();
-    return alert("Backend no responde. Abre primero:\n"+BACKEND+"/health");
-  }
+        if (!response.ok) throw new Error("Error en el backend");
 
-  const settings = {
-    intensity: document.getElementById("intensity").value,
-    target: document.getElementById("target").value,
-    width: document.getElementById("width").value,
-    bands: []
-  };
+        // 🔑 CLAVE: descargar como BLOB
+        const blob = await response.blob();
 
-  const fd = new FormData();
-  fd.append("audio", fileInput.files[0]);
-  fd.append("settings", JSON.stringify(settings));
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "master.wav";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(url);
 
-  const xhr = new XMLHttpRequest();
-  xhr.open("POST", BACKEND + "/export-wav", true);
-  xhr.responseType = "blob";
-  xhr.timeout = 180000;
-
-  xhr.upload.onprogress = (e)=>{
-    if(e.lengthComputable){
-      const pct = 10 + (e.loaded/e.total)*55;
-      setProg(pct, "Subiendo audio… " + Math.round((e.loaded/e.total)*100) + "%");
-    }else{
-      setProg(25,"Subiendo audio…");
+        status.textContent = "Master listo ✅";
+    } catch (err) {
+        status.textContent = "Error al exportar WAV ❌";
+        console.error(err);
     }
-  };
 
-  xhr.onerror = ()=>{
-    exportBtn.disabled = false;
-    setProg(0,"Error de red");
-    alert("Error de red. En Brave prueba: león 🦁 → Shields OFF → recargar.");
-  };
-
-  xhr.ontimeout = ()=>{
-    exportBtn.disabled = false;
-    setProg(0,"Timeout");
-    alert("Se demoró demasiado. Prueba con un audio corto (5–10s).");
-  };
-
-  xhr.onload = ()=>{
-    try{
-      if(xhr.status < 200 || xhr.status >= 300) throw new Error("HTTP " + xhr.status);
-      setProg(95,"Descargando…");
-      const blob = xhr.response;
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "master.wav";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-      setProg(100,"Listo ✅");
-      setTimeout(hideProg, 800);
-    }catch(e){
-      alert("Error exportando: " + e.message);
-      setProg(0,"Error");
-    }finally{
-      exportBtn.disabled = false;
-    }
-  };
-
-  xhr.send(fd);
-});
+    button.disabled = false;
+};
 </script>
 </body>
 </html>
