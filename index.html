@@ -4,112 +4,130 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Masterizado</title>
+
 <style>
-  body { background:#0e0e0e; color:#fff; font-family:Arial, sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
-  .box { width:min(520px, 92vw); background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:22px; }
-  h1 { font-size:20px; margin:0 0 12px; }
-  .row { margin:12px 0; }
-  input[type="file"]{ width:100%; padding:10px; background:#101010; color:#ddd; border:1px solid #2a2a2a; border-radius:10px; }
-  button { width:100%; padding:12px; border:0; border-radius:10px; font-size:16px; cursor:pointer; background:#00e5ff; }
-  button:disabled { opacity:.6; cursor:not-allowed; }
-  .status { margin-top:12px; padding:12px; background:#101010; border:1px solid #2a2a2a; border-radius:10px; color:#d7d7d7; white-space:pre-wrap; }
-  .small { font-size:12px; color:#aaa; margin-top:10px; line-height:1.35; }
+body {
+  background:#0e0e0e;
+  color:#fff;
+  font-family:Arial, sans-serif;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  margin:0;
+}
+.box {
+  background:#171717;
+  border:1px solid #2a2a2a;
+  border-radius:12px;
+  padding:22px;
+  width:min(520px, 92vw);
+}
+h1 {
+  font-size:20px;
+  margin-bottom:12px;
+}
+input, button {
+  width:100%;
+  padding:12px;
+  margin-top:10px;
+  border-radius:8px;
+  border:none;
+}
+input {
+  background:#101010;
+  color:#ddd;
+  border:1px solid #2a2a2a;
+}
+button {
+  background:#00e5ff;
+  font-size:16px;
+  cursor:pointer;
+}
+button:disabled {
+  opacity:0.6;
+}
+.status {
+  margin-top:12px;
+  padding:12px;
+  background:#101010;
+  border:1px solid #2a2a2a;
+  border-radius:8px;
+  white-space:pre-wrap;
+}
 </style>
 </head>
+
 <body>
-  <div class="box">
-    <h1>Masterizado (Exporta WAV)</h1>
+<div class="box">
+  <h1>Masterizar audio (WAV)</h1>
 
-    <div class="row">
-      <input id="audioFile" type="file" accept="audio/*"/>
-    </div>
+  <input type="file" id="fileInput" accept="audio/*">
+  <button id="btn">Masterizar y descargar WAV</button>
 
-    <div class="row">
-      <button id="btn">Masterizar y descargar WAV</button>
-    </div>
-
-    <div class="status" id="status">Listo. Sube un archivo WAV para probar.</div>
-
-    <div class="small">
-      Importante: Por ahora el servidor acepta SOLO WAV. Si subes MP3, te mostrará el motivo exacto.
-    </div>
+  <div class="status" id="status">
+    Listo. Sube un archivo WAV.
   </div>
+</div>
 
 <script>
-  // 👇 Pega aquí tu URL real de Render (SIN / al final)
- const BASE_URL = "https://master-backend-idon.onrender.com";
+/* 🔴 TU URL REAL DE RENDER */
+const BASE_URL = "https://master-backend-idon.onrender.com";
+/* 🔴 LA PUERTA CORRECTA */
+const MASTER_URL = BASE_URL + "/master";
 
-  const ENDPOINT = BASE_URL + "/master";
+const btn = document.getElementById("btn");
+const statusEl = document.getElementById("status");
+const fileInput = document.getElementById("fileInput");
 
-  const btn = document.getElementById("btn");
-  const statusEl = document.getElementById("status");
-  const fileInput = document.getElementById("audioFile");
+function setStatus(text) {
+  statusEl.textContent = text;
+}
 
-  function setStatus(msg) { statusEl.textContent = msg; }
+btn.onclick = async () => {
+  const file = fileInput.files[0];
+  if (!file) {
+    setStatus("Primero elige un archivo.");
+    return;
+  }
 
-  btn.addEventListener("click", async () => {
-    const file = fileInput.files?.[0];
-    if (!file) {
-      setStatus("Te falta elegir un archivo.");
+  btn.disabled = true;
+  setStatus("Enviando audio al servidor...");
+
+  const formData = new FormData();
+  formData.append("file", file);
+
+  try {
+    const response = await fetch(MASTER_URL, {
+      method: "POST",
+      body: formData
+    });
+
+    if (!response.ok) {
+      const text = await response.text();
+      setStatus("No se pudo exportar WAV.\nMotivo:\n" + text);
+      btn.disabled = false;
       return;
     }
 
-    btn.disabled = true;
-    setStatus("Enviando audio al servidor...");
+    const blob = await response.blob();
 
-    const formData = new FormData();
-    formData.append("file", file);
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = "master.wav";
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
 
-    try {
-      const res = await fetch(ENDPOINT, { method: "POST", body: formData });
+    setStatus("Listo ✅ WAV descargado");
+  } catch (err) {
+    setStatus("Error de conexión.\n" + err.message);
+  }
 
-      // Si el servidor respondió con error, mostramos el texto real
-      if (!res.ok) {
-        let msg = "Error del servidor.";
-        const contentType = (res.headers.get("content-type") || "").toLowerCase();
-
-        if (contentType.includes("application/json")) {
-          const j = await res.json().catch(() => null);
-          if (j && j.detail) msg = j.detail;
-        } else {
-          const t = await res.text().catch(() => "");
-          if (t) msg = t;
-        }
-
-        setStatus("No se pudo exportar WAV.\n\nMotivo:\n" + msg);
-        btn.disabled = false;
-        return;
-      }
-
-      // Si llegó bien, esto debería ser audio/wav
-      const blob = await res.blob();
-      const contentType = (res.headers.get("content-type") || "").toLowerCase();
-
-      // Si por algún motivo no es audio, avisamos
-      if (!contentType.includes("audio/wav") && !contentType.includes("audio/")) {
-        setStatus("El servidor respondió, pero no devolvió un audio.\nRevisa si subiste WAV.");
-        btn.disabled = false;
-        return;
-      }
-
-      // Descargar
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement("a");
-      a.href = url;
-      a.download = "master.wav";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-      URL.revokeObjectURL(url);
-
-      setStatus("Listo ✅ Se descargó master.wav");
-    } catch (e) {
-      setStatus("Error de conexión. Revisa tu URL del backend o internet.\n\nDetalle:\n" + e.message);
-    } finally {
-      btn.disabled = false;
-    }
-  });
+  btn.disabled = false;
+};
 </script>
 </body>
 </html>
-
