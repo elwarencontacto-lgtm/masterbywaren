@@ -600,6 +600,21 @@
     document.getElementById('btnBilling').addEventListener('click', () => alert("Plan y pagos (demo)."));
     document.getElementById('btnExport').addEventListener('click', () => alert("Exportar (demo)."));
     document.getElementById('btnLogout').addEventListener('click', () => alert("Logout (demo)."));
-  </script>
+  </script>  
+  <script>
+  const btnLogout = document.getElementById("btnLogout");
+
+  if (btnLogout) {
+    btnLogout.addEventListener("click", () => {
+      fetch("http://localhost:3000/logout", {
+        method: "POST",
+        credentials: "include"
+      }).then(() => {
+        window.location.href = "index.html";
+      });
+    });
+  }
+</script>
+
 </body>
 </html>
