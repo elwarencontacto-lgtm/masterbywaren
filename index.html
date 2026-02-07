@@ -2,105 +2,114 @@
 <html lang="es">
 <head>
 <meta charset="UTF-8" />
-<title>Audio Mastering</title>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Masterizado</title>
 <style>
-body {
-    background: #0e0e0e;
-    color: #fff;
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-}
-.container {
-    background: #1a1a1a;
-    padding: 30px;
-    border-radius: 10px;
-    width: 100%;
-    max-width: 420px;
-    text-align: center;
-}
-input[type="file"] {
-    margin: 20px 0;
-}
-button {
-    width: 100%;
-    padding: 12px;
-    background: #00e5ff;
-    border: none;
-    border-radius: 5px;
-    font-size: 16px;
-    cursor: pointer;
-}
-button:disabled {
-    opacity: 0.5;
-}
-.status {
-    margin-top: 15px;
-}
+  body { background:#0e0e0e; color:#fff; font-family:Arial, sans-serif; display:flex; align-items:center; justify-content:center; min-height:100vh; margin:0; }
+  .box { width:min(520px, 92vw); background:#171717; border:1px solid #2a2a2a; border-radius:12px; padding:22px; }
+  h1 { font-size:20px; margin:0 0 12px; }
+  .row { margin:12px 0; }
+  input[type="file"]{ width:100%; padding:10px; background:#101010; color:#ddd; border:1px solid #2a2a2a; border-radius:10px; }
+  button { width:100%; padding:12px; border:0; border-radius:10px; font-size:16px; cursor:pointer; background:#00e5ff; }
+  button:disabled { opacity:.6; cursor:not-allowed; }
+  .status { margin-top:12px; padding:12px; background:#101010; border:1px solid #2a2a2a; border-radius:10px; color:#d7d7d7; white-space:pre-wrap; }
+  .small { font-size:12px; color:#aaa; margin-top:10px; line-height:1.35; }
 </style>
 </head>
-
 <body>
-<div class="container">
-    <h2>Masterizado WAV</h2>
+  <div class="box">
+    <h1>Masterizado (Exporta WAV)</h1>
 
-    <input type="file" id="audioFile" accept="audio/*">
-    <button id="sendBtn">Masterizar</button>
+    <div class="row">
+      <input id="audioFile" type="file" accept="audio/*"/>
+    </div>
 
-    <div class="status" id="status"></div>
-</div>
+    <div class="row">
+      <button id="btn">Masterizar y descargar WAV</button>
+    </div>
+
+    <div class="status" id="status">Listo. Sube un archivo WAV para probar.</div>
+
+    <div class="small">
+      Importante: Por ahora el servidor acepta SOLO WAV. Si subes MP3, te mostrará el motivo exacto.
+    </div>
+  </div>
 
 <script>
-const backendURL = "https://master-backend-ab91.onrender.com/master";
+  // 👇 Pega aquí tu URL real de Render (SIN / al final)
+ const BASE_URL = "https://master-backend-idon.onrender.com";
 
-const button = document.getElementById("sendBtn");
-const status = document.getElementById("status");
+  const ENDPOINT = BASE_URL + "/master";
 
-button.onclick = async () => {
-    const fileInput = document.getElementById("audioFile");
-    if (!fileInput.files.length) {
-        alert("Selecciona un archivo");
-        return;
+  const btn = document.getElementById("btn");
+  const statusEl = document.getElementById("status");
+  const fileInput = document.getElementById("audioFile");
+
+  function setStatus(msg) { statusEl.textContent = msg; }
+
+  btn.addEventListener("click", async () => {
+    const file = fileInput.files?.[0];
+    if (!file) {
+      setStatus("Te falta elegir un archivo.");
+      return;
     }
 
-    button.disabled = true;
-    status.textContent = "Procesando audio...";
+    btn.disabled = true;
+    setStatus("Enviando audio al servidor...");
 
     const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
+    formData.append("file", file);
 
     try {
-        const response = await fetch(backendURL, {
-            method: "POST",
-            body: formData
-        });
+      const res = await fetch(ENDPOINT, { method: "POST", body: formData });
 
-        if (!response.ok) throw new Error("Error en el backend");
+      // Si el servidor respondió con error, mostramos el texto real
+      if (!res.ok) {
+        let msg = "Error del servidor.";
+        const contentType = (res.headers.get("content-type") || "").toLowerCase();
 
-        // 🔑 CLAVE: descargar como BLOB
-        const blob = await response.blob();
+        if (contentType.includes("application/json")) {
+          const j = await res.json().catch(() => null);
+          if (j && j.detail) msg = j.detail;
+        } else {
+          const t = await res.text().catch(() => "");
+          if (t) msg = t;
+        }
 
-        const url = window.URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = "master.wav";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        window.URL.revokeObjectURL(url);
+        setStatus("No se pudo exportar WAV.\n\nMotivo:\n" + msg);
+        btn.disabled = false;
+        return;
+      }
 
-        status.textContent = "Master listo ✅";
-    } catch (err) {
-        status.textContent = "Error al exportar WAV ❌";
-        console.error(err);
+      // Si llegó bien, esto debería ser audio/wav
+      const blob = await res.blob();
+      const contentType = (res.headers.get("content-type") || "").toLowerCase();
+
+      // Si por algún motivo no es audio, avisamos
+      if (!contentType.includes("audio/wav") && !contentType.includes("audio/")) {
+        setStatus("El servidor respondió, pero no devolvió un audio.\nRevisa si subiste WAV.");
+        btn.disabled = false;
+        return;
+      }
+
+      // Descargar
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "master.wav";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      setStatus("Listo ✅ Se descargó master.wav");
+    } catch (e) {
+      setStatus("Error de conexión. Revisa tu URL del backend o internet.\n\nDetalle:\n" + e.message);
+    } finally {
+      btn.disabled = false;
     }
-
-    button.disabled = false;
-};
+  });
 </script>
 </body>
 </html>
+
