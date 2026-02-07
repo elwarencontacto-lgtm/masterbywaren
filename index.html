@@ -1,89 +1,119 @@
 <!doctype html>
 <html lang="es">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>WarMaster — Masterización Online</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WarMaster — Masterización Online</title>
 
-  <style>
-    :root{
-      --bg0:#07080c;
-      --bg1:#0b0e16;
-      --text:#e9edf7;
-      --muted: rgba(233,237,247,.72);
-      --a:#8a5cff;
-      --b:#00d7ff;
-      --c:#00ff9a;
-    }
+<style>
+:root{
+  --bg0:#07080c;
+  --bg1:#0b0e16;
+  --text:#e9edf7;
+  --muted: rgba(233,237,247,.72);
+  --a:#8a5cff;
+  --b:#00d7ff;
+  --c:#00ff9a;
+}
 
-    *{ box-sizing:border-box; }
-    body{
-      margin:0;
-      font-family: Arial, sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(900px 500px at 10% 10%, rgba(138,92,255,.22), transparent 55%),
-        radial-gradient(800px 500px at 90% 15%, rgba(0,215,255,.18), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1));
-    }
+*{ box-sizing:border-box; }
 
-    header{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      padding:20px 30px;
-      border-bottom:1px solid rgba(255,255,255,.1);
-    }
+body{
+  margin:0;
+  font-family: Arial, sans-serif;
+  color:var(--text);
+  background:
+    radial-gradient(900px 500px at 10% 10%, rgba(138,92,255,.22), transparent 55%),
+    radial-gradient(800px 500px at 90% 15%, rgba(0,215,255,.18), transparent 55%),
+    linear-gradient(180deg, var(--bg0), var(--bg1));
+}
 
-    .brand{
-      font-size:22px;
-      font-weight:bold;
-    }
+header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  padding:20px 28px;
+  border-bottom:1px solid rgba(255,255,255,.08);
+}
 
-    .grad{
-      background:linear-gradient(90deg,#8a5cff,#00d7ff,#00ff9a);
-      -webkit-background-clip:text;
-      color:transparent;
-    }
+.brand{
+  font-size:22px;
+  font-weight:800;
+}
 
-    .btn{
-      padding:10px 16px;
-      border-radius:14px;
-      border:none;
-      cursor:pointer;
-      font-weight:bold;
-    }
+.grad{
+  background:linear-gradient(90deg,#8a5cff,#00d7ff,#00ff9a);
+  -webkit-background-clip:text;
+  color:transparent;
+}
 
-    .btn.primary{
-      background:linear-gradient(90deg,#8a5cff,#00d7ff);
-      color:#000;
-    }
+.btn{
+  padding:10px 16px;
+  border-radius:14px;
+  border:none;
+  cursor:pointer;
+  font-weight:700;
+}
 
-    .hero{
-      max-width:900px;
-      margin:100px auto;
-      padding:0 20px;
-      text-align:center;
-    }
+.btn.primary{
+  background:linear-gradient(90deg,#8a5cff,#00d7ff);
+  color:#000;
+}
 
-    .hero h1{
-      font-size:48px;
-      margin-bottom:18px;
-    }
+.hero{
+  max-width:1000px;
+  margin:90px auto 60px;
+  padding:0 24px;
+  text-align:center;
+}
 
-    .hero p{
-      color:var(--muted);
-      line-height:1.6;
-      margin-bottom:30px;
-    }
+.hero h1{
+  font-size:48px;
+  margin-bottom:18px;
+}
 
-    .actions{
-      display:flex;
-      justify-content:center;
-      gap:14px;
-      flex-wrap:wrap;
-    }
-  </style>
+.hero p{
+  color:var(--muted);
+  line-height:1.6;
+  margin-bottom:28px;
+}
+
+.actions{
+  display:flex;
+  justify-content:center;
+  gap:14px;
+  flex-wrap:wrap;
+}
+
+.section{
+  max-width:1100px;
+  margin:0 auto;
+  padding:60px 24px;
+}
+
+.section h2{
+  font-size:28px;
+  margin-bottom:14px;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+  gap:18px;
+}
+
+.card{
+  background:rgba(255,255,255,.05);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:18px;
+  padding:20px;
+}
+
+.price{
+  font-size:32px;
+  font-weight:800;
+}
+</style>
 </head>
 
 <body>
@@ -93,21 +123,60 @@
   <button class="btn primary" id="btnLogin">Iniciar sesión</button>
 </header>
 
+<main>
+
 <section class="hero">
   <h1>Masteriza tu música con <span class="grad">calidad profesional</span></h1>
   <p>
     WarMaster es una plataforma de masterización online.
-    Sube tu track y obtén un sonido listo para publicar.
+    Sube tu track y obtén un sonido moderno, potente y listo para publicar.
   </p>
-
   <div class="actions">
     <button class="btn primary" id="btnLoginHero">Entrar al dashboard</button>
   </div>
 </section>
 
-<!-- ========================= -->
-<!-- LOGIN FAKE (NO CAMBIA UI) -->
-<!-- ========================= -->
+<section class="section">
+  <h2>Cómo funciona</h2>
+  <div class="cards">
+    <div class="card">Sube tu track</div>
+    <div class="card">Elige el estilo</div>
+    <div class="card">Descarga tu master</div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Características</h2>
+  <div class="cards">
+    <div class="card">Presets por género</div>
+    <div class="card">Control de intensidad</div>
+    <div class="card">Exporta WAV / MP3</div>
+  </div>
+</section>
+
+<section class="section">
+  <h2>Precios</h2>
+  <div class="cards">
+    <div class="card">
+      <h3>Free</h3>
+      <p class="price">$0</p>
+    </div>
+    <div class="card">
+      <h3>Pro</h3>
+      <p class="price">$12</p>
+    </div>
+    <div class="card">
+      <h3>Studio</h3>
+      <p class="price">$29</p>
+    </div>
+  </div>
+</section>
+
+<!-- ⚠️ FAQ ELIMINADA AQUÍ (COMO PEDISTE) -->
+
+</main>
+
+<!-- LOGIN FAKE — SOLO FUNCIONALIDAD -->
 <script>
   function loginFake(){
     localStorage.setItem("warmaster_logged", "true");
@@ -120,5 +189,6 @@
 
 </body>
 </html>
+
 
 
