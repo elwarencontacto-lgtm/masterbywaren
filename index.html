@@ -817,25 +817,15 @@
       }, 1100);
     });
     <script>
+ <script>
   const btnLogin = document.getElementById("btnLogin");
-
   if (btnLogin) {
     btnLogin.addEventListener("click", () => {
-      fetch("http://localhost:3000/login", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify({
-          email: "demo@warmaster.com",
-          password: "123456"
-        })
-      }).then(() => {
-        window.location.href = "dashboard.html";
-      });
+      localStorage.setItem("warmaster_logged", "true");
+      window.location.href = "dashboard.html";
     });
   }
 </script>
-  </script>
 </body>
 </html>
 
