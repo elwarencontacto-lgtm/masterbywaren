@@ -1,187 +1,270 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Masterizado</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Masterizado</title>
 
-<style>
-body {
-  background:#0e0e0e;
-  color:#fff;
-  font-family:Arial, sans-serif;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  margin:0;
-}
-.box {
-  background:#171717;
-  border:1px solid #2a2a2a;
-  border-radius:12px;
-  padding:22px;
-  width:min(520px, 92vw);
-}
-h1 { font-size:20px; margin-bottom:10px; }
-input, button {
-  width:100%;
-  padding:12px;
-  margin-top:10px;
-  border-radius:8px;
-  border:none;
-}
-input {
-  background:#101010;
-  color:#ddd;
-  border:1px solid #2a2a2a;
-}
-button {
-  background:#00e5ff;
-  font-size:16px;
-  cursor:pointer;
-}
-button:disabled { opacity:0.6; }
-.status {
-  margin-top:12px;
-  padding:12px;
-  background:#101010;
-  border:1px solid #2a2a2a;
-  border-radius:8px;
-  white-space:pre-wrap;
-}
-.small {
-  font-size:12px;
-  color:#aaa;
-  margin-top:8px;
-}
-</style>
+  <style>
+    :root { color-scheme: dark; }
+    body{
+      background:#0e0e0e; color:#fff; font-family:Arial, sans-serif;
+      display:flex; justify-content:center; align-items:center;
+      min-height:100vh; margin:0; padding:18px;
+    }
+    .box{
+      width:min(560px, 96vw);
+      background:#171717; border:1px solid #2a2a2a; border-radius:14px;
+      padding:22px;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    h1{ font-size:22px; margin:0 0 8px; }
+    .sub{ color:#bdbdbd; font-size:13px; margin:0 0 18px; line-height:1.35; }
+    .row{ margin-top:12px; }
+    input[type="file"]{
+      width:100%;
+      padding:12px;
+      background:#101010; color:#ddd;
+      border:1px solid #2a2a2a; border-radius:10px;
+    }
+    button{
+      width:100%;
+      padding:14px;
+      border:0; border-radius:10px;
+      font-size:16px;
+      background:#00e5ff;
+      cursor:pointer;
+    }
+    button:disabled{ opacity:.6; cursor:not-allowed; }
+    .status{
+      margin-top:14px;
+      padding:12px;
+      background:#101010;
+      border:1px solid #2a2a2a;
+      border-radius:10px;
+      color:#d7d7d7;
+      white-space:pre-wrap;
+      line-height:1.35;
+      min-height:48px;
+    }
+    .hint{
+      margin-top:10px;
+      color:#9a9a9a;
+      font-size:12px;
+      line-height:1.35;
+    }
+    .badge{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      border:1px solid #2a2a2a;
+      background:#121212;
+      color:#bdbdbd;
+      font-size:12px;
+      margin-top:6px;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap:10px;
+      margin-top:10px;
+    }
+    .mini{
+      background:#101010;
+      border:1px solid #2a2a2a;
+      border-radius:10px;
+      padding:10px;
+      color:#bdbdbd;
+      font-size:12px;
+      line-height:1.35;
+    }
+    .mini strong{ color:#fff; font-weight:700; }
+    @media (max-width: 420px){
+      .grid{ grid-template-columns: 1fr; }
+    }
+  </style>
 </head>
 
 <body>
-<div class="box">
-  <h1>Masterizar audio</h1>
+  <div class="box">
+    <h1>Masterizar audio</h1>
+    <p class="sub">
+      Puedes subir <b>MP3</b> o <b>WAV</b>. Si subes MP3, la página lo convierte a WAV automáticamente.
+    </p>
 
-  <input type="file" id="fileInput" accept="audio/*">
-  <button id="btn">Masterizar y descargar WAV</button>
+    <div class="row">
+      <input id="fileInput" type="file" accept="audio/*" />
+    </div>
 
-  <div class="status" id="status">
-    Puedes subir MP3 o WAV.
+    <div class="row">
+      <button id="btn">Masterizar y descargar WAV</button>
+    </div>
+
+    <div class="status" id="status">Listo. Elige un archivo.</div>
+
+    <div class="grid">
+      <div class="mini"><strong>Backend:</strong><br><span id="backendTxt"></span></div>
+      <div class="mini"><strong>Puerta usada:</strong><br><span id="endpointTxt"></span></div>
+    </div>
+
+    <div class="hint">
+      Si sale error, aquí abajo verás el motivo real (no uno genérico).
+      <div class="badge">Tip móvil: si el MP3 es muy largo, la conversión puede tardar.</div>
+    </div>
   </div>
-
-  <div class="small">
-    Si subes MP3, la web lo convierte a WAV automáticamente.
-  </div>
-</div>
 
 <script>
-const BASE_URL = "https://master-backend-idon.onrender.com";
-const MASTER_URL = BASE_URL + "/master";
+  // ✅ TU URL REAL DE RENDER (sin / al final)
+  const BASE_URL = "https://master-backend-idon.onrender.com";
+  // ✅ LA RUTA EXACTA QUE DEBE EXISTIR EN TU BACKEND PYTHON
+  const MASTER_URL = BASE_URL + "/master";
 
-const btn = document.getElementById("btn");
-const statusEl = document.getElementById("status");
-const fileInput = document.getElementById("fileInput");
+  document.getElementById("backendTxt").textContent = BASE_URL;
+  document.getElementById("endpointTxt").textContent = "/master";
 
-function setStatus(t) {
-  statusEl.textContent = t;
-}
+  const btn = document.getElementById("btn");
+  const statusEl = document.getElementById("status");
+  const fileInput = document.getElementById("fileInput");
 
-/* Convierte AudioBuffer → WAV */
-function audioBufferToWav(buffer) {
-  const numChannels = buffer.numberOfChannels;
-  const sampleRate = buffer.sampleRate;
-  const length = buffer.length * numChannels * 2;
-  const wav = new ArrayBuffer(44 + length);
-  const view = new DataView(wav);
+  function setStatus(t){ statusEl.textContent = t; }
 
-  function writeString(o, s) {
-    for (let i = 0; i < s.length; i++) view.setUint8(o + i, s.charCodeAt(i));
+  // Convierte AudioBuffer -> WAV (16-bit)
+  function audioBufferToWavBlob(buffer){
+    const numChannels = buffer.numberOfChannels;
+    const sampleRate = buffer.sampleRate;
+    const numFrames = buffer.length;
+
+    const bytesPerSample = 2; // 16-bit
+    const blockAlign = numChannels * bytesPerSample;
+    const byteRate = sampleRate * blockAlign;
+    const dataSize = numFrames * blockAlign;
+
+    const ab = new ArrayBuffer(44 + dataSize);
+    const view = new DataView(ab);
+
+    const writeString = (offset, str) => {
+      for (let i = 0; i < str.length; i++) view.setUint8(offset + i, str.charCodeAt(i));
+    };
+
+    let offset = 0;
+    writeString(offset, "RIFF"); offset += 4;
+    view.setUint32(offset, 36 + dataSize, true); offset += 4;
+    writeString(offset, "WAVE"); offset += 4;
+
+    writeString(offset, "fmt "); offset += 4;
+    view.setUint32(offset, 16, true); offset += 4;          // PCM chunk size
+    view.setUint16(offset, 1, true); offset += 2;           // format = PCM
+    view.setUint16(offset, numChannels, true); offset += 2;
+    view.setUint32(offset, sampleRate, true); offset += 4;
+    view.setUint32(offset, byteRate, true); offset += 4;
+    view.setUint16(offset, blockAlign, true); offset += 2;
+    view.setUint16(offset, 16, true); offset += 2;          // bits per sample
+
+    writeString(offset, "data"); offset += 4;
+    view.setUint32(offset, dataSize, true); offset += 4;
+
+    // interleaved PCM16
+    for (let i = 0; i < numFrames; i++){
+      for (let ch = 0; ch < numChannels; ch++){
+        let sample = buffer.getChannelData(ch)[i];
+        sample = Math.max(-1, Math.min(1, sample));
+        view.setInt16(offset, sample * 32767, true);
+        offset += 2;
+      }
+    }
+
+    return new Blob([view], { type: "audio/wav" });
   }
 
-  let offset = 0;
-  writeString(offset, "RIFF"); offset += 4;
-  view.setUint32(offset, 36 + length, true); offset += 4;
-  writeString(offset, "WAVE"); offset += 4;
-  writeString(offset, "fmt "); offset += 4;
-  view.setUint32(offset, 16, true); offset += 4;
-  view.setUint16(offset, 1, true); offset += 2;
-  view.setUint16(offset, numChannels, true); offset += 2;
-  view.setUint32(offset, sampleRate, true); offset += 4;
-  view.setUint32(offset, sampleRate * numChannels * 2, true); offset += 4;
-  view.setUint16(offset, numChannels * 2, true); offset += 2;
-  view.setUint16(offset, 16, true); offset += 2;
-  writeString(offset, "data"); offset += 4;
-  view.setUint32(offset, length, true); offset += 4;
-
-  for (let i = 0; i < buffer.length; i++) {
-    for (let c = 0; c < numChannels; c++) {
-      let sample = buffer.getChannelData(c)[i];
-      sample = Math.max(-1, Math.min(1, sample));
-      view.setInt16(offset, sample * 32767, true);
-      offset += 2;
+  // Lee el error real del server (si devuelve json/texto)
+  async function readErrorMessage(res){
+    const ct = (res.headers.get("content-type") || "").toLowerCase();
+    if (ct.includes("application/json")){
+      try {
+        const j = await res.json();
+        if (j && typeof j.detail === "string") return j.detail;
+        return JSON.stringify(j);
+      } catch {
+        return "Error (JSON inválido).";
+      }
+    }
+    try {
+      const t = await res.text();
+      return t || "Error desconocido.";
+    } catch {
+      return "Error desconocido.";
     }
   }
 
-  return new Blob([view], { type: "audio/wav" });
-}
-
-btn.onclick = async () => {
-  const file = fileInput.files[0];
-  if (!file) {
-    setStatus("Primero elige un archivo.");
-    return;
-  }
-
-  btn.disabled = true;
-  setStatus("Preparando audio...");
-
-  let wavBlob;
-
-  if (file.type.includes("mp3")) {
-    setStatus("Convirtiendo MP3 a WAV en la web...");
-    const arrayBuffer = await file.arrayBuffer();
-    const ctx = new AudioContext();
-    const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
-    wavBlob = audioBufferToWav(audioBuffer);
-  } else {
-    wavBlob = file;
-  }
-
-  setStatus("Enviando WAV al servidor...");
-
-  const formData = new FormData();
-  formData.append("file", wavBlob, "audio.wav");
-
-  try {
-    const res = await fetch(MASTER_URL, {
-      method: "POST",
-      body: formData
-    });
-
-    if (!res.ok) {
-      const txt = await res.text();
-      setStatus("No se pudo exportar WAV.\nMotivo:\n" + txt);
-      btn.disabled = false;
+  btn.onclick = async () => {
+    const file = fileInput.files && fileInput.files[0];
+    if (!file){
+      setStatus("Primero elige un archivo.");
       return;
     }
 
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "master.wav";
-    document.body.appendChild(a);
-    a.click();
-    a.remove();
-    URL.revokeObjectURL(url);
+    btn.disabled = true;
+    setStatus("Preparando audio...");
 
-    setStatus("Listo ✅ WAV descargado");
-  } catch (e) {
-    setStatus("Error de conexión.\n" + e.message);
-  }
+    let wavBlob;
 
-  btn.disabled = false;
-};
+    try {
+      const type = (file.type || "").toLowerCase();
+
+      // Si es MP3 o no viene claro el tipo, intentamos convertir con el navegador
+      // (Esto funciona en Chrome/Android la mayoría de las veces)
+      if (type.includes("mpeg") || type.includes("mp3") || file.name.toLowerCase().endsWith(".mp3")){
+        setStatus("Convirtiendo MP3 a WAV en tu teléfono... (puede tardar)");
+        const arrayBuffer = await file.arrayBuffer();
+
+        // AudioContext debe crearse tras un click (ya estamos dentro del click)
+        const AudioCtx = window.AudioContext || window.webkitAudioContext;
+        const ctx = new AudioCtx();
+
+        // decodeAudioData a veces falla con MP3 raros; si falla, lo informamos claro
+        const audioBuffer = await ctx.decodeAudioData(arrayBuffer);
+        wavBlob = audioBufferToWavBlob(audioBuffer);
+      } else {
+        // Si el usuario sube WAV ya listo, lo mandamos tal cual
+        wavBlob = file;
+      }
+
+      setStatus("Enviando WAV al servidor...");
+      const formData = new FormData();
+      // Siempre le ponemos nombre wav para que el backend no se confunda
+      formData.append("file", wavBlob, "audio.wav");
+
+      const res = await fetch(MASTER_URL, {
+        method: "POST",
+        body: formData
+      });
+
+      if (!res.ok){
+        const msg = await readErrorMessage(res);
+        setStatus("No se pudo exportar WAV.\nMotivo:\n" + msg);
+        btn.disabled = false;
+        return;
+      }
+
+      // Descarga
+      const blob = await res.blob();
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "master.wav";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+
+      setStatus("Listo ✅ Se descargó master.wav");
+    } catch (e) {
+      // Errores típicos en móvil: no pudo convertir MP3, archivo muy pesado, etc.
+      setStatus("No se pudo terminar.\nMotivo:\n" + (e && e.message ? e.message : String(e)));
+    } finally {
+      btn.disabled = false;
+    }
+  };
 </script>
 </body>
 </html>
