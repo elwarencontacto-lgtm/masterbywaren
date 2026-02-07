@@ -4,828 +4,121 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>WarMaster — Masterización Online</title>
-  <meta name="description" content="WarMaster: masteriza tu música online en minutos. Sube tu track, elige estilo y descarga masters listos para publicar." />
 
   <style>
     :root{
       --bg0:#07080c;
       --bg1:#0b0e16;
-      --card: rgba(255,255,255,.06);
-      --card2: rgba(255,255,255,.08);
-      --stroke: rgba(255,255,255,.12);
       --text:#e9edf7;
       --muted: rgba(233,237,247,.72);
-
-      --a:#8a5cff;   /* violeta */
-      --b:#00d7ff;   /* cyan */
-      --c:#00ff9a;   /* verde */
-
-      --shadow: 0 18px 60px rgba(0,0,0,.55);
-      --radius: 18px;
-      --radius2: 24px;
-
-      --max: 1160px;
+      --a:#8a5cff;
+      --b:#00d7ff;
+      --c:#00ff9a;
     }
 
-    *{ box-sizing: border-box; }
-    html,body{ height: 100%; }
+    *{ box-sizing:border-box; }
     body{
       margin:0;
-      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, "Apple Color Emoji","Segoe UI Emoji";
+      font-family: Arial, sans-serif;
       color:var(--text);
       background:
         radial-gradient(900px 500px at 10% 10%, rgba(138,92,255,.22), transparent 55%),
         radial-gradient(800px 500px at 90% 15%, rgba(0,215,255,.18), transparent 55%),
-        radial-gradient(700px 500px at 60% 90%, rgba(0,255,154,.10), transparent 55%),
-        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, #06070b);
-      overflow-x:hidden;
-    }
-
-    a{ color:inherit; text-decoration:none; }
-    .container{ width:min(var(--max), calc(100% - 40px)); margin:0 auto; }
-
-    .grid-bg{
-      position: fixed;
-      inset: 0;
-      pointer-events:none;
-      opacity:.35;
-      background:
-        linear-gradient(to right, rgba(255,255,255,.03) 1px, transparent 1px),
-        linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
-      background-size: 54px 54px;
-      mask-image: radial-gradient(600px 400px at 50% 10%, #000 60%, transparent 100%);
+        linear-gradient(180deg, var(--bg0), var(--bg1));
     }
 
     header{
-      position: sticky;
-      top:0;
-      z-index:50;
-      backdrop-filter: blur(14px);
-      background: rgba(7,8,12,.55);
-      border-bottom: 1px solid rgba(255,255,255,.08);
-    }
-    .nav{
       display:flex;
-      align-items:center;
       justify-content:space-between;
-      padding: 14px 0;
-      gap: 18px;
+      align-items:center;
+      padding:20px 30px;
+      border-bottom:1px solid rgba(255,255,255,.1);
     }
+
     .brand{
-      display:flex; align-items:center; gap:10px;
-      font-weight: 800;
-      letter-spacing:.3px;
+      font-size:22px;
+      font-weight:bold;
     }
-    .logo{
-      width: 36px; height:36px; border-radius: 12px;
-      background:
-        radial-gradient(circle at 30% 30%, rgba(0,215,255,.95), transparent 55%),
-        radial-gradient(circle at 70% 70%, rgba(138,92,255,.95), transparent 55%),
-        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.02));
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 12px 40px rgba(0,0,0,.45);
-      position: relative;
-      overflow:hidden;
-    }
-    .logo::after{
-      content:"";
-      position:absolute; inset:-30px;
-      background: conic-gradient(from 120deg, rgba(0,255,154,.0), rgba(0,255,154,.35), rgba(0,215,255,.0));
-      animation: spin 6s linear infinite;
-      opacity:.9;
-    }
-    @keyframes spin{ to{ transform: rotate(360deg); } }
 
-    nav ul{
-      list-style:none; margin:0; padding:0;
-      display:flex; gap: 18px;
-      color: var(--muted);
-      font-weight: 560;
-      font-size: 14px;
-    }
-    nav ul a{ padding:10px 10px; border-radius: 12px; }
-    nav ul a:hover{ background: rgba(255,255,255,.06); color: var(--text); }
-
-    .nav-cta{ display:flex; gap: 10px; align-items:center; }
-    .btn{
-      border: 1px solid rgba(255,255,255,.14);
-      background: rgba(255,255,255,.06);
-      color: var(--text);
-      padding: 10px 14px;
-      border-radius: 14px;
-      font-weight: 700;
-      font-size: 14px;
-      cursor:pointer;
-      transition: transform .12s ease, background .12s ease, border-color .12s ease;
-      display:inline-flex; align-items:center; gap:10px;
-      user-select:none;
-    }
-    .btn:hover{ transform: translateY(-1px); background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); }
-    .btn:active{ transform: translateY(0px) scale(.99); }
-    .btn.primary{
-      border: none;
-      background: linear-gradient(90deg, rgba(138,92,255,.95), rgba(0,215,255,.95));
-      color:#071018;
-      box-shadow: 0 18px 60px rgba(0,0,0,.55);
-    }
-    .btn.primary:hover{ filter: brightness(1.05); }
-
-    .hero{ padding: 60px 0 28px; position: relative; }
-    .hero-grid{
-      display:grid;
-      grid-template-columns: 1.15fr .85fr;
-      gap: 28px;
-      align-items: start;
-    }
-    .kicker{
-      display:inline-flex; align-items:center; gap:10px;
-      color: rgba(233,237,247,.85);
-      background: rgba(255,255,255,.06);
-      border: 1px solid rgba(255,255,255,.10);
-      padding: 8px 12px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 13px;
-    }
-    .dot{
-      width:10px; height:10px; border-radius: 999px;
-      background: radial-gradient(circle at 30% 30%, rgba(0,255,154,.95), rgba(0,255,154,.25));
-      box-shadow: 0 0 0 6px rgba(0,255,154,.10);
-    }
-    h1{
-      margin: 16px 0 10px;
-      font-size: clamp(36px, 5vw, 54px);
-      line-height: 1.02;
-      letter-spacing: -1px;
-    }
     .grad{
-      background: linear-gradient(90deg, rgba(138,92,255,1), rgba(0,215,255,1), rgba(0,255,154,1));
-      -webkit-background-clip: text;
-      background-clip: text;
-      color: transparent;
-    }
-    .sub{
-      color: var(--muted);
-      font-size: 16px;
-      line-height: 1.55;
-      margin: 10px 0 18px;
-      max-width: 58ch;
-    }
-    .hero-actions{
-      display:flex;
-      gap: 12px;
-      flex-wrap: wrap;
-      align-items:center;
-      margin: 14px 0 10px;
-    }
-    .mini{
-      color: rgba(233,237,247,.70);
-      font-size: 13px;
-      display:flex;
-      gap: 14px;
-      flex-wrap: wrap;
-      margin-top: 10px;
-    }
-    .mini span{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      background: rgba(255,255,255,.04);
-      border: 1px solid rgba(255,255,255,.08);
-    }
-    .check{
-      width: 16px; height:16px; display:inline-block;
-      border-radius: 6px;
-      background: linear-gradient(135deg, rgba(0,255,154,.9), rgba(0,215,255,.4));
-      box-shadow: 0 8px 24px rgba(0,255,154,.12);
-      position: relative;
-    }
-    .check:after{
-      content:"";
-      position:absolute;
-      left:4px; top:4px;
-      width: 7px; height:4px;
-      border-left:2px solid #05251a;
-      border-bottom:2px solid #05251a;
-      transform: rotate(-45deg);
-      opacity:.9;
+      background:linear-gradient(90deg,#8a5cff,#00d7ff,#00ff9a);
+      -webkit-background-clip:text;
+      color:transparent;
     }
 
-    .panel{
-      border-radius: 24px;
-      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: var(--shadow);
-      overflow:hidden;
-      position: relative;
-    }
-    .panel::before{
-      content:"";
-      position:absolute; inset:-1px;
-      background:
-        radial-gradient(400px 200px at 20% 10%, rgba(138,92,255,.25), transparent 60%),
-        radial-gradient(400px 220px at 90% 20%, rgba(0,215,255,.18), transparent 60%),
-        radial-gradient(500px 260px at 30% 90%, rgba(0,255,154,.10), transparent 60%);
-      pointer-events:none;
-    }
-    .panel-inner{ position: relative; padding: 18px; }
-    .panel h3{ margin:0 0 6px; font-size: 16px; letter-spacing:.2px; }
-    .panel p{ margin:0 0 12px; color: var(--muted); font-size: 13px; line-height: 1.45; }
-
-    .drop{
-      border-radius: 18px;
-      border: 1px dashed rgba(255,255,255,.20);
-      background: rgba(255,255,255,.05);
-      padding: 16px;
-      display:flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-    .drop-top{
-      display:flex; align-items:center; justify-content:space-between; gap: 12px;
-      flex-wrap: wrap;
-    }
-    .file-btn{ position: relative; overflow:hidden; }
-    input[type="file"]{
-      position:absolute;
-      inset:0;
-      opacity:0;
+    .btn{
+      padding:10px 16px;
+      border-radius:14px;
+      border:none;
       cursor:pointer;
-    }
-    .badge{
-      display:inline-flex; align-items:center; gap:8px;
-      padding: 8px 10px;
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      color: rgba(233,237,247,.9);
-    }
-    .badge i{
-      width:10px; height:10px; border-radius:999px;
-      background: radial-gradient(circle at 30% 30%, rgba(0,215,255,.9), rgba(0,215,255,.15));
-      box-shadow: 0 0 0 6px rgba(0,215,255,.10);
-      display:inline-block;
+      font-weight:bold;
     }
 
-    .row{ display:grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-    .field{
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-      border-radius: 16px;
-      padding: 12px;
-    }
-    .field label{
-      display:block;
-      font-size: 12px;
-      color: rgba(233,237,247,.75);
-      margin-bottom: 6px;
-      font-weight: 800;
-    }
-    select, input[type="range"]{ width:100%; accent-color: var(--b); }
-    select{
-      background: rgba(0,0,0,.2);
-      border: 1px solid rgba(255,255,255,.10);
-      color: var(--text);
-      padding: 10px 10px;
-      border-radius: 12px;
-      outline: none;
-    }
-    .range-meta{
-      display:flex; justify-content:space-between;
-      font-size: 12px;
-      color: rgba(233,237,247,.70);
-      margin-top: 6px;
+    .btn.primary{
+      background:linear-gradient(90deg,#8a5cff,#00d7ff);
+      color:#000;
     }
 
-    .panel-footer{
+    .hero{
+      max-width:900px;
+      margin:100px auto;
+      padding:0 20px;
+      text-align:center;
+    }
+
+    .hero h1{
+      font-size:48px;
+      margin-bottom:18px;
+    }
+
+    .hero p{
+      color:var(--muted);
+      line-height:1.6;
+      margin-bottom:30px;
+    }
+
+    .actions{
       display:flex;
-      gap: 10px;
-      align-items:center;
-      justify-content:space-between;
-      margin-top: 12px;
-      flex-wrap: wrap;
-    }
-    .status{
-      font-size: 12px;
-      color: rgba(233,237,247,.78);
-      display:flex; align-items:center; gap:10px;
-    }
-    .pill{
-      padding: 7px 10px;
-      border-radius: 999px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.06);
-      font-weight: 800;
-    }
-
-    .wave{
-      margin-top: 18px;
-      border-radius: 18px;
-      background: rgba(0,0,0,.22);
-      border: 1px solid rgba(255,255,255,.10);
-      padding: 12px;
-    }
-    .wavebar{
-      height: 64px;
-      display:flex;
-      gap: 4px;
-      align-items:flex-end;
-    }
-    .bar{
-      width: 4px;
-      flex: 1;
-      border-radius: 6px;
-      background: linear-gradient(180deg, rgba(0,215,255,.95), rgba(138,92,255,.65));
-      opacity:.55;
-      transform-origin: bottom;
-      animation: bounce 1.2s ease-in-out infinite;
-    }
-    .bar:nth-child(3n){ animation-duration: 1.05s; opacity:.6; }
-    .bar:nth-child(4n){ animation-duration: 1.35s; opacity:.5; }
-    .bar:nth-child(5n){ animation-duration: 1.55s; opacity:.45; }
-    @keyframes bounce{
-      0%,100%{ transform: scaleY(.35); }
-      50%{ transform: scaleY(1); }
-    }
-
-    section{ padding: 54px 0; }
-    .section-title{
-      display:flex; align-items:flex-end; justify-content:space-between; gap: 20px; flex-wrap: wrap;
-      margin-bottom: 18px;
-    }
-    .section-title h2{ margin:0; font-size: 26px; letter-spacing: -.3px; }
-    .section-title p{ margin:0; color: var(--muted); max-width: 60ch; line-height: 1.5; font-size: 14px; }
-
-    .cards{ display:grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
-    .card{
-      border-radius: 18px;
-      background: rgba(255,255,255,.05);
-      border: 1px solid rgba(255,255,255,.10);
-      padding: 16px;
-      position: relative;
-      overflow:hidden;
-    }
-    .card::before{
-      content:"";
-      position:absolute; inset:-1px;
-      background: radial-gradient(260px 160px at 20% 20%, rgba(138,92,255,.14), transparent 60%);
-      pointer-events:none;
-      opacity: .9;
-    }
-    .card > *{ position:relative; }
-    .icon{
-      width: 40px; height:40px;
-      border-radius: 14px;
-      background: linear-gradient(135deg, rgba(138,92,255,.9), rgba(0,215,255,.65));
-      border: 1px solid rgba(255,255,255,.12);
-      box-shadow: 0 16px 44px rgba(0,0,0,.45);
-      display:flex; align-items:center; justify-content:center;
-      font-weight: 900;
-      color:#061018;
-      margin-bottom: 10px;
-      user-select:none;
-    }
-    .card h4{ margin:0 0 6px; font-size: 16px; }
-    .card p{ margin:0; color: var(--muted); font-size: 13px; line-height: 1.55; }
-
-    .pricing{ display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; align-items: stretch; }
-    .plan{
-      border-radius: 24px;
-      border: 1px solid rgba(255,255,255,.12);
-      background: rgba(255,255,255,.05);
-      padding: 18px;
-      position: relative;
-      overflow:hidden;
-    }
-    .plan.featured{
-      background: linear-gradient(180deg, rgba(138,92,255,.18), rgba(255,255,255,.05));
-      border-color: rgba(138,92,255,.35);
-      box-shadow: 0 22px 70px rgba(0,0,0,.55);
-      transform: translateY(-6px);
-    }
-    .plan h3{ margin:0 0 6px; }
-    .plan .desc{ margin:0 0 14px; color: var(--muted); font-size: 13px; line-height:1.45; }
-    .price{
-      font-size: 34px;
-      font-weight: 950;
-      letter-spacing: -1px;
-      margin: 6px 0 10px;
-    }
-    .price small{ font-size: 13px; color: var(--muted); font-weight: 800; }
-    .list{
-      margin: 10px 0 14px;
-      padding:0;
-      list-style:none;
-      display:flex; flex-direction:column; gap: 10px;
-      color: rgba(233,237,247,.85);
-      font-size: 13px;
-    }
-    .list li{ display:flex; gap:10px; align-items:flex-start; }
-    .tick{
-      width:18px; height:18px; border-radius: 8px;
-      background: linear-gradient(135deg, rgba(0,255,154,.9), rgba(0,215,255,.45));
-      flex: 0 0 auto;
-      margin-top: 1px;
-    }
-
-    .cta{
-      border-radius: 26px;
-      border: 1px solid rgba(255,255,255,.12);
-      background:
-        radial-gradient(600px 260px at 20% 20%, rgba(0,215,255,.16), transparent 60%),
-        radial-gradient(600px 260px at 80% 30%, rgba(138,92,255,.18), transparent 60%),
-        rgba(255,255,255,.05);
-      padding: 22px;
-      display:flex;
-      align-items:center;
-      justify-content:space-between;
-      gap: 14px;
-      flex-wrap: wrap;
-    }
-    .cta h3{ margin:0; }
-    .cta p{ margin:6px 0 0; color: var(--muted); font-size: 13px; max-width: 66ch; }
-
-    footer{ padding: 26px 0 34px; color: rgba(233,237,247,.62); font-size: 12px; }
-    .foot{
-      display:flex; justify-content:space-between; gap: 14px; flex-wrap: wrap;
-      border-top: 1px solid rgba(255,255,255,.08);
-      padding-top: 16px;
-    }
-
-    @media (max-width: 980px){
-      .hero-grid{ grid-template-columns: 1fr; }
-      .cards{ grid-template-columns: 1fr; }
-      .pricing{ grid-template-columns: 1fr; }
-      nav ul{ display:none; }
-      .plan.featured{ transform:none; }
-      .row{ grid-template-columns: 1fr; }
+      justify-content:center;
+      gap:14px;
+      flex-wrap:wrap;
     }
   </style>
 </head>
 
 <body>
-  <div class="grid-bg" aria-hidden="true"></div>
 
-  <header>
-    <div class="container">
-      <div class="nav">
-        <a class="brand" href="#">
-          <span class="logo" aria-hidden="true"></span>
-          <span>War<span class="grad">Master</span></span>
-        </a>
+<header>
+  <div class="brand">War<span class="grad">Master</span></div>
+  <button class="btn primary" id="btnLogin">Iniciar sesión</button>
+</header>
 
-        <nav aria-label="principal">
-          <ul>
-            <li><a href="#como">Cómo funciona</a></li>
-            <li><a href="#features">Características</a></li>
-            <li><a href="#precios">Precios</a></li>
-            <li><a href="#faq">FAQ</a></li>
-          </ul>
-        </nav>
+<section class="hero">
+  <h1>Masteriza tu música con <span class="grad">calidad profesional</span></h1>
+  <p>
+    WarMaster es una plataforma de masterización online.
+    Sube tu track y obtén un sonido listo para publicar.
+  </p>
 
-        <div class="nav-cta">
-          <button class="btn" type="button" id="btnLogin">Iniciar sesión</button>
-          <button class="btn primary" type="button" id="btnStartTop">Masterizar ahora</button>
-        </div>
-      </div>
-    </div>
-  </header>
+  <div class="actions">
+    <button class="btn primary" id="btnLoginHero">Entrar al dashboard</button>
+  </div>
+</section>
 
-  <main>
-    <section class="hero">
-      <div class="container">
-        <div class="hero-grid">
-          <div>
-            <span class="kicker"><span class="dot"></span> WarMaster — Masterización online con estética pro</span>
-            <h1>Tu música, lista para la batalla en <span class="grad">minutos</span>.</h1>
-            <p class="sub">
-              Sube tu track, elige un estilo y obtén un master con loudness y color moderno.
-              Interfaz oscura + neón, pensada para lanzar rápido tu MVP.
-            </p>
-
-            <div class="hero-actions">
-              <button class="btn primary" type="button" id="btnStart">Subir y masterizar</button>
-              <button class="btn" type="button" id="btnDemo">Escuchar demo A/B</button>
-            </div>
-
-            <div class="mini">
-              <span><i class="check"></i> Exporta WAV / MP3</span>
-              <span><i class="check"></i> Presets por género</span>
-              <span><i class="check"></i> A/B instantáneo</span>
-            </div>
-          </div>
-
-          <aside class="panel" id="panelMaster">
-            <div class="panel-inner">
-              <h3>Masteriza un track</h3>
-              <p>Arrastra tu audio o selecciónalo. (UI demo: conecta tu backend después)</p>
-
-              <div class="drop" id="dropZone">
-                <div class="drop-top">
-                  <span class="badge"><i></i> Arrastra tu archivo aquí</span>
-
-                  <span class="btn file-btn" role="button" aria-label="Seleccionar archivo">
-                    Seleccionar archivo
-                    <input type="file" id="fileInput" accept="audio/*" />
-                  </span>
-                </div>
-
-                <div class="row">
-                  <div class="field">
-                    <label for="style">Estilo</label>
-                    <select id="style">
-                      <option value="clean">Clean / Balanced</option>
-                      <option value="club">Club / Loud</option>
-                      <option value="warm">Warm / Analog</option>
-                      <option value="bright">Bright / Pop</option>
-                      <option value="heavy">Heavy / Rock</option>
-                    </select>
-                  </div>
-
-                  <div class="field">
-                    <label for="intensity">Intensidad</label>
-                    <input type="range" id="intensity" min="0" max="100" value="55" />
-                    <div class="range-meta">
-                      <span>Suave</span><span>Agresiva</span>
-                    </div>
-                  </div>
-                </div>
-
-                <div class="wave">
-                  <div class="status">
-                    <span class="pill" id="fileName">Sin archivo</span>
-                    <span id="hint">Sube un audio para habilitar el render.</span>
-                  </div>
-                  <div class="wavebar" aria-hidden="true" id="waveBars"></div>
-                </div>
-
-                <div class="panel-footer">
-                  <div class="status">
-                    <span class="pill" id="format">WAV 24-bit</span>
-                    <span class="pill" id="loudness">-9 LUFS</span>
-                  </div>
-
-                  <button class="btn primary" type="button" id="btnRender" disabled>
-                    Renderizar master
-                  </button>
-                </div>
-              </div>
-
-              <p style="margin-top:12px; color:rgba(233,237,247,.65); font-size:12px;">
-                WarMaster UI (demo): cambia textos, agrega login y conecta /api para master real.
-              </p>
-            </div>
-          </aside>
-        </div>
-      </div>
-    </section>
-
-    <section id="como">
-      <div class="container">
-        <div class="section-title">
-          <div>
-            <h2>Cómo funciona</h2>
-            <p>Subes, eliges estilo y descargas. Simple y rápido.</p>
-          </div>
-        </div>
-
-        <div class="cards">
-          <div class="card">
-            <div class="icon">1</div>
-            <h4>Sube tu audio</h4>
-            <p>WAV/MP3. Define límites por tamaño/duración y validaciones en backend.</p>
-          </div>
-          <div class="card">
-            <div class="icon">2</div>
-            <h4>Define el carácter</h4>
-            <p>Presets por género + control de intensidad. A/B para comparar.</p>
-          </div>
-          <div class="card">
-            <div class="icon">3</div>
-            <h4>Exporta y publica</h4>
-            <p>WAV/MP3 listos para plataformas. Puedes vender créditos o planes.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="features">
-      <div class="container">
-        <div class="section-title">
-          <div>
-            <h2>Características</h2>
-            <p>Una experiencia “pro” desde el primer click: visual + velocidad + claridad.</p>
-          </div>
-        </div>
-
-        <div class="cards">
-          <div class="card">
-            <div class="icon">A</div>
-            <h4>A/B instantáneo</h4>
-            <p>Comparación rápida (ideal con normalización de volumen en tu player).</p>
-          </div>
-          <div class="card">
-            <div class="icon">S</div>
-            <h4>Presets inteligentes</h4>
-            <p>Clean, Club, Warm, Bright, Heavy. Escalable a géneros y “targets”.</p>
-          </div>
-          <div class="card">
-            <div class="icon">Q</div>
-            <h4>Salida lista para release</h4>
-            <p>LUFS objetivo + export configurable por plan. Ideal para Spotify/YouTube.</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <section id="precios">
-      <div class="container">
-        <div class="section-title">
-          <div>
-            <h2>Precios</h2>
-            <p>Ejemplo. Ajusta a tu negocio (créditos por master, suscripción, o híbrido).</p>
-          </div>
-        </div>
-
-        <div class="pricing">
-          <div class="plan">
-            <h3>Recruit</h3>
-            <p class="desc">Para probar WarMaster y sacar demos rápidos.</p>
-            <div class="price">$0 <small>/ mes</small></div>
-            <ul class="list">
-              <li><span class="tick"></span> 2 masters/mes</li>
-              <li><span class="tick"></span> MP3 320kbps</li>
-              <li><span class="tick"></span> Presets básicos</li>
-            </ul>
-            <button class="btn" type="button">Empezar</button>
-          </div>
-
-          <div class="plan featured">
-            <h3>WarMaster Pro</h3>
-            <p class="desc">El plan principal para artistas y productores.</p>
-            <div class="price">$12 <small>/ mes</small></div>
-            <ul class="list">
-              <li><span class="tick"></span> 20 masters/mes</li>
-              <li><span class="tick"></span> WAV 24-bit + MP3</li>
-              <li><span class="tick"></span> A/B + control de intensidad</li>
-              <li><span class="tick"></span> Targets LUFS por plataforma</li>
-            </ul>
-            <button class="btn primary" type="button">Elegir Pro</button>
-          </div>
-
-          <div class="plan">
-            <h3>Studio</h3>
-            <p class="desc">Para sellos, equipos y alto volumen.</p>
-            <div class="price">$29 <small>/ mes</small></div>
-            <ul class="list">
-              <li><span class="tick"></span> Masters ilimitados*</li>
-              <li><span class="tick"></span> WAV 24-bit / 32-float</li>
-              <li><span class="tick"></span> Colas prioritarias</li>
-              <li><span class="tick"></span> API / Integración</li>
-            </ul>
-            <button class="btn" type="button">Hablar con ventas</button>
-          </div>
-        </div>
-
-        <p style="margin-top:10px; color:rgba(233,237,247,.55); font-size:12px;">
-          * “Ilimitado” normalmente se rige por fair-use. Define límites reales en términos.
-        </p>
-      </div>
-    </section>
-  </main>
-
-  <footer>
-    <div class="container">
-      <div class="foot">
-        <div>© <span id="year"></span> WarMaster. Todos los derechos reservados.</div>
-        <div style="display:flex; gap:12px; flex-wrap:wrap;">
-          <a href="#" style="opacity:.85">Términos</a>
-          <a href="#" style="opacity:.85">Privacidad</a>
-          <a href="#" style="opacity:.85">Soporte</a>
-        </div>
-      </div>
-    </div>
-  </footer>
-
-  <script>
-    const fileInput = document.getElementById('fileInput');
-    const fileName = document.getElementById('fileName');
-    const btnRender = document.getElementById('btnRender');
-    const hint = document.getElementById('hint');
-    const year = document.getElementById('year');
-    const dropZone = document.getElementById('dropZone');
-
-    const styleSel = document.getElementById('style');
-    const intensity = document.getElementById('intensity');
-    const loudness = document.getElementById('loudness');
-
-    year.textContent = new Date().getFullYear();
-
-    const waveBars = document.getElementById('waveBars');
-    const barsCount = 42;
-    for(let i=0;i<barsCount;i++){
-      const b = document.createElement('div');
-      b.className = 'bar';
-      b.style.height = (18 + Math.random()*46) + 'px';
-      b.style.animationDelay = (Math.random()*0.6) + 's';
-      waveBars.appendChild(b);
-    }
-
-    function setEnabled(enabled){
-      btnRender.disabled = !enabled;
-      btnRender.style.opacity = enabled ? '1' : '.6';
-      btnRender.style.filter = enabled ? 'none' : 'grayscale(30%)';
-    }
-
-    function setFile(f){
-      if(!f){
-        fileName.textContent = 'Sin archivo';
-        hint.textContent = 'Sube un audio para habilitar el render.';
-        setEnabled(false);
-        return;
-      }
-      fileName.textContent = f.name;
-      hint.textContent = 'Listo: configura estilo e intensidad.';
-      setEnabled(true);
-    }
-
-    fileInput.addEventListener('change', (e) => {
-      const f = e.target.files?.[0];
-      setFile(f || null);
-    });
-
-    function setLufs(){
-      const val = Number(intensity.value);
-      const lufs = (-14 + (val/100)*7).toFixed(1); // -14 .. -7 aprox
-      loudness.textContent = `${lufs} LUFS`;
-    }
-    intensity.addEventListener('input', setLufs);
-    setLufs();
-
-    ['dragenter','dragover'].forEach(evt => {
-      dropZone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        dropZone.style.borderColor = 'rgba(0,215,255,.45)';
-      });
-    });
-    ['dragleave','drop'].forEach(evt => {
-      dropZone.addEventListener(evt, (e) => {
-        e.preventDefault();
-        dropZone.style.borderColor = 'rgba(255,255,255,.20)';
-      });
-    });
-    dropZone.addEventListener('drop', (e) => {
-      const f = e.dataTransfer.files?.[0];
-      if(f){
-        setFile(f);
-      }
-    });
-
-    const scrollToPanel = () => document.getElementById('panelMaster').scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-    document.getElementById('btnStart').addEventListener('click', scrollToPanel);
-    document.getElementById('btnStartTop').addEventListener('click', scrollToPanel);
-    document.getElementById('btnStartBottom').addEventListener('click', scrollToPanel);
-
-    document.getElementById('btnDemo').addEventListener('click', () => {
-      alert('Demo A/B (placeholder). Aquí puedes abrir un modal con reproductor y comparador.');
-    });
-
-    document.getElementById('btnDocs').addEventListener('click', () => {
-      alert(
-`Estructura recomendada (MVP WarMaster):
-1) POST /api/upload -> guarda audio, devuelve jobId
-2) POST /api/master -> encola procesamiento (preset + intensity)
-3) GET  /api/status/:jobId -> progreso
-4) GET  /api/download/:jobId -> descarga master
-+ auth + planes + límites`
-      );
-    });
-
-    btnRender.addEventListener('click', () => {
-      const style = styleSel.value;
-      const inten = intensity.value;
-      btnRender.textContent = 'Renderizando…';
-      btnRender.disabled = true;
-
-      setTimeout(() => {
-        btnRender.textContent = 'Descargar master';
-        btnRender.disabled = false;
-        alert(`Render listo (demo WarMaster). Estilo: ${style} | Intensidad: ${inten}\nConecta aquí tu endpoint real para descargar.`);
-      }, 1100);
-    });
-    <script>
- <script>
-  const btnLogin = document.getElementById("btnLogin");
-  if (btnLogin) {
-    btnLogin.addEventListener("click", () => {
-      localStorage.setItem("warmaster_logged", "true");
-      window.location.href = "dashboard.html";
-    });
+<!-- ========================= -->
+<!-- LOGIN FAKE (NO CAMBIA UI) -->
+<!-- ========================= -->
+<script>
+  function loginFake(){
+    localStorage.setItem("warmaster_logged", "true");
+    window.location.href = "dashboard.html";
   }
+
+  document.getElementById("btnLogin")?.addEventListener("click", loginFake);
+  document.getElementById("btnLoginHero")?.addEventListener("click", loginFake);
 </script>
+
 </body>
 </html>
+
 
