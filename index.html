@@ -4,174 +4,92 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASTER BY WAREN</title>
-
 <style>
-body{
-  margin:0;
-  font-family:system-ui,-apple-system,Segoe UI,Roboto;
-  background:#0b0b0b;
-  color:#fff;
-}
-h1{
-  text-align:center;
-  margin:20px 0;
-}
-.card{
-  max-width:520px;
-  margin:20px auto;
-  background:#151515;
-  border-radius:18px;
-  padding:20px;
-  box-shadow:0 0 40px rgba(0,0,0,.6);
-}
-button{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:12px;
-  background:#00ffa2;
-  color:#000;
-  font-size:18px;
-  font-weight:700;
-}
-button:disabled{
-  opacity:.5;
-}
-input[type=file]{
-  width:100%;
-  margin-bottom:16px;
-}
-.progress{
-  width:100%;
-  height:10px;
-  background:#222;
-  border-radius:10px;
-  overflow:hidden;
-  margin-top:10px;
-}
-.progress div{
-  height:100%;
-  width:0%;
-  background:#00ffa2;
-  transition:width .3s;
-}
-.small{
-  font-size:12px;
-  opacity:.7;
-  margin-top:10px;
-}
-canvas{
-  width:100%;
-  height:120px;
-  background:#0f0f0f;
-  border-radius:12px;
-}
-label{
-  font-size:13px;
-}
-select{
-  width:100%;
-  padding:10px;
-  margin-top:6px;
-  border-radius:10px;
-  border:none;
-}
+  body{margin:0;background:#0b0b0b;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto}
+  .wrap{max-width:680px;margin:auto;padding:18px}
+  h1{text-align:center;margin:14px 0;font-size:40px;letter-spacing:1px}
+  .card{background:#151515;border-radius:18px;padding:18px;box-shadow:0 0 40px rgba(0,0,0,.6)}
+  label{display:block;margin-top:10px;font-size:13px;opacity:.9}
+  input,select,button{width:100%}
+  input,select{margin-top:6px;padding:10px;border-radius:10px;border:1px solid #2a2a2a;background:#0f0f0f;color:#fff}
+  button{margin-top:14px;padding:14px;border:none;border-radius:12px;background:#00ffa2;color:#000;font-size:18px;font-weight:800}
+  button:disabled{opacity:.6}
+  canvas{width:100%;height:120px;background:#0f0f0f;border:1px solid #222;border-radius:12px;margin-top:12px}
+  .progressWrap{margin-top:12px;background:#0f0f0f;border:1px solid #222;border-radius:12px;padding:10px;display:none}
+  .bar{height:12px;background:#1b1b1b;border-radius:999px;overflow:hidden;border:1px solid #222}
+  .fill{height:100%;width:0%;background:#00ffa2;transition:width .15s}
+  .txt{margin-top:8px;font-size:12px;opacity:.9}
+  .hint{margin-top:10px;font-size:12px;opacity:.7;line-height:1.35}
 </style>
 </head>
-
 <body>
+<div class="wrap">
+  <h1>MASTER BY WAREN</h1>
+  <div class="card">
+    <label>Subir audio (MP3 / WAV)</label>
+    <input type="file" id="audioFile" accept="audio/*">
 
-<h1>MASTER BY WAREN</h1>
+    <canvas id="wave"></canvas>
 
-<div class="card">
+    <label>Intensidad</label>
+    <select id="intensity">
+      <option value="soft">Suave</option>
+      <option value="medium" selected>Media</option>
+      <option value="hard">Fuerte</option>
+    </select>
 
-  <label>Subir audio (MP3 / WAV)</label>
-  <input type="file" id="audioFile" accept="audio/*">
+    <label>Destino</label>
+    <select id="target">
+      <option value="streaming" selected>Streaming</option>
+      <option value="radio">Radio</option>
+      <option value="club">Club</option>
+    </select>
 
-  <canvas id="wave"></canvas>
+    <label>Ancho estéreo</label>
+    <select id="width">
+      <option value="narrow">Angosto</option>
+      <option value="normal" selected>Normal</option>
+      <option value="wide">Amplio</option>
+    </select>
 
-  <label>Intensidad</label>
-  <select id="intensity">
-    <option value="soft">Suave</option>
-    <option value="medium" selected>Media</option>
-    <option value="hard">Fuerte</option>
-  </select>
+    <button id="exportBtn">⬇ Exportar WAV</button>
 
-  <label>Destino</label>
-  <select id="target">
-    <option value="streaming" selected>Streaming</option>
-    <option value="radio">Radio</option>
-    <option value="club">Club</option>
-  </select>
+    <div class="progressWrap" id="progressWrap">
+      <div class="bar"><div class="fill" id="fill"></div></div>
+      <div class="txt" id="status">Listo</div>
+    </div>
 
-  <label>Ancho estéreo</label>
-  <select id="width">
-    <option value="narrow">Angosto</option>
-    <option value="normal" selected>Normal</option>
-    <option value="wide">Amplio</option>
-  </select>
-
-  <button id="exportBtn">⬇ Exportar WAV</button>
-
-  <div class="progress"><div id="bar"></div></div>
-
-  <div class="small" id="status">Esperando archivo…</div>
-
-  <div class="small">
-    • El primer export puede tardar (Render dormido).<br>
-    • El procesamiento es real (FFmpeg backend).
+    <div class="hint">
+      • Si Render estaba dormido, el primer intento puede tardar.<br>
+      • Si usas Brave, prueba desactivar Shields (león 🦁) si bloquea.
+    </div>
   </div>
-
 </div>
 
 <script>
-/* ===============================
-   CONFIG
-================================ */
 const BACKEND = "https://master-backend-ab91.onrender.com";
 
-/* ===============================
-   ELEMENTOS
-================================ */
 const fileInput = document.getElementById("audioFile");
 const exportBtn = document.getElementById("exportBtn");
-const bar = document.getElementById("bar");
+const progressWrap = document.getElementById("progressWrap");
+const fill = document.getElementById("fill");
 const statusTxt = document.getElementById("status");
+
 const canvas = document.getElementById("wave");
 const ctx = canvas.getContext("2d");
 
-/* ===============================
-   WAVE VISUAL
-================================ */
-function drawWave(file){
-  const reader = new FileReader();
-  reader.onload = async () => {
-    const audioCtx = new (window.AudioContext||window.webkitAudioContext)();
-    const buf = await audioCtx.decodeAudioData(reader.result);
-    const data = buf.getChannelData(0);
-    ctx.clearRect(0,0,canvas.width,canvas.height);
-    ctx.strokeStyle="#00ffa2";
-    ctx.beginPath();
-    const step = Math.floor(data.length / canvas.width);
-    for(let i=0;i<canvas.width;i++){
-      const v = data[i*step] * 0.5;
-      const y = canvas.height/2 + v * canvas.height;
-      ctx.lineTo(i,y);
-    }
-    ctx.stroke();
-  };
-  reader.readAsArrayBuffer(file);
+function setProg(p, t){
+  progressWrap.style.display = "block";
+  fill.style.width = Math.max(0,Math.min(100,p)) + "%";
+  statusTxt.textContent = t;
+}
+function hideProg(){
+  progressWrap.style.display = "none";
+  fill.style.width = "0%";
+  statusTxt.textContent = "Listo";
 }
 
-/* ===============================
-   UTIL
-================================ */
-function setProgress(p,msg){
-  bar.style.width = p+"%";
-  statusTxt.textContent = msg;
-}
-
-async function wakeBackend(){
+async function wake(){
   try{
     await fetch(BACKEND + "/health", { cache:"no-store" });
     return true;
@@ -180,34 +98,46 @@ async function wakeBackend(){
   }
 }
 
-/* ===============================
-   EVENTS
-================================ */
-fileInput.addEventListener("change", e=>{
-  if(e.target.files[0]){
-    drawWave(e.target.files[0]);
-    setProgress(0,"Archivo cargado");
-  }
+function drawWave(file){
+  const r = new FileReader();
+  r.onload = async () => {
+    const ac = new (window.AudioContext||window.webkitAudioContext)();
+    const buf = await ac.decodeAudioData(r.result);
+    const data = buf.getChannelData(0);
+    const dpr = window.devicePixelRatio||1;
+    canvas.width = Math.floor(canvas.clientWidth*dpr);
+    canvas.height = Math.floor(canvas.clientHeight*dpr);
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+    ctx.strokeStyle = "#00ffa2";
+    ctx.lineWidth = 2*dpr;
+    ctx.beginPath();
+    const step = Math.max(1, Math.floor(data.length / canvas.width));
+    for(let i=0;i<canvas.width;i++){
+      const v = data[i*step] * 0.5;
+      const y = canvas.height/2 + v * canvas.height*0.9;
+      if(i===0) ctx.moveTo(i,y); else ctx.lineTo(i,y);
+    }
+    ctx.stroke();
+  };
+  r.readAsArrayBuffer(file);
+}
+
+fileInput.addEventListener("change", ()=>{
+  if(fileInput.files[0]) drawWave(fileInput.files[0]);
 });
 
 exportBtn.addEventListener("click", async ()=>{
-  if(!fileInput.files[0]){
-    alert("Selecciona un archivo");
-    return;
-  }
+  if(!fileInput.files[0]) return alert("Selecciona un audio primero.");
 
   exportBtn.disabled = true;
+  setProg(8,"Conectando…");
 
-  setProgress(5,"Conectando al servidor…");
-
-  const alive = await wakeBackend();
-  if(!alive){
-    alert("No se pudo conectar al backend.\nAbre primero:\n"+BACKEND+"/health");
+  const ok = await wake();
+  if(!ok){
     exportBtn.disabled = false;
-    return;
+    hideProg();
+    return alert("Backend no responde. Abre primero:\n"+BACKEND+"/health");
   }
-
-  setProgress(15,"Subiendo audio…");
 
   const settings = {
     intensity: document.getElementById("intensity").value,
@@ -216,41 +146,61 @@ exportBtn.addEventListener("click", async ()=>{
     bands: []
   };
 
-  const form = new FormData();
-  form.append("audio", fileInput.files[0]);
-  form.append("settings", JSON.stringify(settings));
+  const fd = new FormData();
+  fd.append("audio", fileInput.files[0]);
+  fd.append("settings", JSON.stringify(settings));
 
-  try{
-    const res = await fetch(BACKEND + "/export-wav", {
-      method:"POST",
-      body:form
-    });
+  const xhr = new XMLHttpRequest();
+  xhr.open("POST", BACKEND + "/export-wav", true);
+  xhr.responseType = "blob";
+  xhr.timeout = 180000;
 
-    if(!res.ok){
-      const t = await res.text();
-      throw new Error(t);
+  xhr.upload.onprogress = (e)=>{
+    if(e.lengthComputable){
+      const pct = 10 + (e.loaded/e.total)*55;
+      setProg(pct, "Subiendo audio… " + Math.round((e.loaded/e.total)*100) + "%");
+    }else{
+      setProg(25,"Subiendo audio…");
     }
+  };
 
-    setProgress(80,"Descargando WAV…");
+  xhr.onerror = ()=>{
+    exportBtn.disabled = false;
+    setProg(0,"Error de red");
+    alert("Error de red. En Brave prueba: león 🦁 → Shields OFF → recargar.");
+  };
 
-    const blob = await res.blob();
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = "master.wav";
-    a.click();
-    URL.revokeObjectURL(url);
+  xhr.ontimeout = ()=>{
+    exportBtn.disabled = false;
+    setProg(0,"Timeout");
+    alert("Se demoró demasiado. Prueba con un audio corto (5–10s).");
+  };
 
-    setProgress(100,"Listo ✔");
+  xhr.onload = ()=>{
+    try{
+      if(xhr.status < 200 || xhr.status >= 300) throw new Error("HTTP " + xhr.status);
+      setProg(95,"Descargando…");
+      const blob = xhr.response;
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "master.wav";
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+      setProg(100,"Listo ✅");
+      setTimeout(hideProg, 800);
+    }catch(e){
+      alert("Error exportando: " + e.message);
+      setProg(0,"Error");
+    }finally{
+      exportBtn.disabled = false;
+    }
+  };
 
-  }catch(err){
-    alert("Error exportando:\n"+err.message);
-    setProgress(0,"Error");
-  }
-
-  exportBtn.disabled = false;
+  xhr.send(fd);
 });
 </script>
-
 </body>
 </html>
