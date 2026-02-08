@@ -330,7 +330,55 @@ main{
     Análisis inteligente • Compresión precisa • Loudness profesional
   </p>
 </section>
+<section class="section" id="master">
+  <h2>Masteriza un track</h2>
+  <p class="lead">Sube tu audio, elige un estilo y renderiza tu master. (Procesamiento real se conecta después)</p>
 
+  <div class="master-card" id="dropZone">
+    <div class="master-top">
+      <div class="file-pill" id="fileName">Sin archivo</div>
+
+      <div class="master-actions">
+        <button class="btn primary" type="button" id="btnUpload">Subir archivo</button>
+        <button class="btn" type="button" id="btnImport">Importar</button>
+
+        <!-- input real (oculto) -->
+        <input id="fileInput" type="file" accept="audio/*" hidden />
+      </div>
+    </div>
+
+    <div class="master-grid">
+      <div class="field">
+        <label for="style">Estilo</label>
+        <select id="style">
+          <option value="clean">Clean / Balanced</option>
+          <option value="club">Club / Loud</option>
+          <option value="warm">Warm / Analog</option>
+          <option value="bright">Bright / Pop</option>
+          <option value="heavy">Heavy / Rock</option>
+        </select>
+      </div>
+
+      <div class="field">
+        <label for="intensity">Intensidad</label>
+        <input type="range" id="intensity" min="0" max="100" value="55" />
+        <div class="range-meta">
+          <span>Suave</span><span id="lufs">-9.0 LUFS</span><span>Agresiva</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bars-wrap">
+      <div class="bars" id="bars"></div>
+      <div class="hint" id="hint">Arrastra tu archivo aquí o usa “Subir archivo”.</div>
+    </div>
+
+    <div class="master-bottom">
+      <audio id="preview" controls style="width:100%; display:none;"></audio>
+      <button class="btn primary" type="button" id="btnMaster" disabled>Masterizar</button>
+    </div>
+  </div>
+</section>
  <section class="section" id="como">
   <h2>Cómo funciona</h2>
   <p class="lead">Sube tu track, elige un carácter y descarga un master listo para publicar.</p>
