@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>WarMaster — Masterizado</title>
+
+  <style>
+    :root{
+      --bg0:#07080c;
+      --bg1:#0b0e16;
+      --text:#e9edf7;
+      --muted: rgba(233,237,247,.72);
+      --a:#8a5cff;
+      --b:#00d7ff;
+      --c:#00ff9a;
+      --radius: 22px;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: Arial, sans-serif;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(138,92,255,.22), transparent 55%),
+        radial-gradient(800px 500px at 90% 15%, rgba(0,215,255,.18), transparent 55%),
+        radial-gradient(700px 500px at 60% 90%, rgba(0,255,154,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, #06070b);
+      overflow-x:hidden;
+    }
+
+    /* Header */
+    header{
+      position: sticky;
+      top:0;
+      z-index: 10;
+      backdrop-filter: blur(14px);
+      background: rgba(7,8,12,.55);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
+    .wrap{ width:min(1180px, calc(100% - 40px)); margin:0 auto; }
+    .nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      padding:16px 0;
+    }
+    .brand{
+      font-size:22px;
+      font-weight:800;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+      text-decoration:none;
+      color:var(--text);
+    }
+    .dotlogo{
+      width:34px;height:34px;border-radius:12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(0,215,255,.95), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(138,92,255,.95), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    }
+    .grad{
+      background:linear-gradient(90deg,var(--a),var(--b),var(--c));
+      -webkit-background-clip:text;
+      color:transparent;
+    }
+    .btn{
+      padding:10px 16px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+      font-weight:800;
+    }
+    .btn:hover{ background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); }
+    .btn.primary{
+      border:none;
+      background: linear-gradient(90deg, rgba(138,92,255,.95), rgba(0,215,255,.95));
+      color:#061018;
+    }
+
+    /* Layout */
+    main{ padding: 26px 0 70px; }
+    .top{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap: 14px;
+      flex-wrap: wrap;
+      margin: 18px 0 18px;
+    }
+    h1{ margin:0; font-size: 38px; letter-spacing:-.8px; }
+    .sub{ margin:8px 0 0; color: var(--muted); font-size: 14px; line-height:1.6; max-width: 72ch; }
+
+    .card{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      box-shadow: 0 24px 70px rgba(0,0,0,.55);
+      overflow:hidden;
+      position:relative;
+    }
+    .card::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background:
+        radial-gradient(420px 220px at 20% 20%, rgba(138,92,255,.16), transparent 60%),
+        radial-gradient(420px 220px at 85% 30%, rgba(0,215,255,.12), transparent 60%),
+        radial-gradient(520px 240px at 40% 95%, rgba(0,255,154,.10), transparent 60%);
+      pointer-events:none;
+      opacity:.95;
+    }
+    .card > *{ position:relative; }
+
+    .master{
+      padding:18px;
+    }
+    .master-head{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap: 12px;
+      flex-wrap:wrap;
+      margin-bottom: 12px;
+    }
+    .pill{
+      padding: 10px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight: 900;
+      font-size: 13px;
+      color: rgba(233,237,247,.92);
+      max-width: 100%;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      white-space:nowrap;
+    }
+    .grid{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+      margin-top: 10px;
+    }
+    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
+
+    .field{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.04);
+      padding: 12px;
+    }
+    label{
+      display:block;
+      font-size: 12px;
+      font-weight: 900;
+      color: rgba(233,237,247,.72);
+      margin-bottom: 8px;
+    }
+    select{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline:none;
+    }
+    input[type="range"]{ width:100%; accent-color: var(--b); }
+    .meta{
+      margin-top: 10px;
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+      font-size: 12px;
+      color: rgba(233,237,247,.62);
+    }
+
+    .drop{
+      margin-top: 14px;
+      border-radius: 18px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      padding: 12px;
+    }
+    .bars{
+      height: 70px;
+      display:flex;
+      align-items:flex-end;
+      gap: 4px;
+    }
+    .bar{
+      flex:1;
+      height: 18px;
+      border-radius: 6px;
+      background: linear-gradient(180deg, rgba(0,215,255,.95), rgba(138,92,255,.75));
+      opacity:.55;
+      transform-origin: bottom;
+      animation: bounce 1.2s ease-in-out infinite;
+    }
+    .bar:nth-child(3n){ animation-duration: 1.05s; opacity:.62; }
+    .bar:nth-child(4n){ animation-duration: 1.35s; opacity:.52; }
+    .bar:nth-child(5n){ animation-duration: 1.55s; opacity:.45; }
+    @keyframes bounce{ 0%,100%{ transform: scaleY(.35);} 50%{ transform: scaleY(1);} }
+
+    .hint{
+      margin-top: 10px;
+      font-size: 12px;
+      color: rgba(233,237,247,.62);
+    }
+
+    .bottom{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    audio{
+      flex: 1 1 320px;
+      width:100%;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+    }
+
+    .ghost{ background: transparent; }
+    .disabled{ opacity:.6; pointer-events:none; }
+  </style>
+</head>
+
+<body>
+<header>
+  <div class="wrap">
+    <div class="nav">
+      <a class="brand" href="index.html">
+        <span class="dotlogo" aria-hidden="true"></span>
+        <span>War<span class="grad">Master</span></span>
+      </a>
+
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn ghost" href="dashboard.html">Dashboard</a>
+        <button class="btn primary" id="btnUploadTop" type="button">Subir archivo</button>
+      </div>
+    </div>
+  </div>
+</header>
+
+<main>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>Masterizado</h1>
+        <p class="sub">Sube tu audio, define el estilo y ajusta la intensidad. Este flujo queda listo para conectar el motor de masterización cuando tengas PC/backend.</p>
+      </div>
+      <div style="display:flex; gap:10px; flex-wrap:wrap;">
+        <button class="btn" id="btnImport" type="button">Importar</button>
+        <button class="btn primary" id="btnMaster" type="button" disabled>Masterizar</button>
+      </div>
+    </div>
+
+    <section class="card master" id="dropZone">
+      <div class="master-head">
+        <span class="pill" id="fileName">Sin archivo</span>
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn primary" id="btnUpload" type="button">Subir archivo</button>
+          <button class="btn" id="btnPick" type="button">Elegir otro</button>
+          <input id="fileInput" type="file" accept="audio/*" hidden />
+        </div>
+      </div>
+
+      <div class="grid">
+        <div class="field">
+          <label for="style">Estilo</label>
+          <select id="style">
+            <option value="clean">Clean / Balanced</option>
+            <option value="club">Club / Loud</option>
+            <option value="warm">Warm / Analog</option>
+            <option value="bright">Bright / Pop</option>
+            <option value="heavy">Heavy / Rock</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="intensity">Intensidad</label>
+          <input type="range" id="intensity" min="0" max="100" value="55" />
+          <div class="meta">
+            <span>Suave</span>
+            <span class="pill" id="lufs">-9.0 LUFS</span>
+            <span>Agresiva</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="drop">
+        <div class="bars" id="bars"></div>
+        <div class="hint" id="hint">Arrastra tu archivo aquí o usa “Subir archivo”.</div>
+      </div>
+
+      <div class="bottom">
+        <audio id="preview" controls style="display:none;"></audio>
+        <button class="btn primary disabled" id="btnDownload" type="button">Descargar (demo)</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<script>
+  // barras
+  const barsEl = document.getElementById("bars");
+  for (let i = 0; i < 42; i++){
+    const b = document.createElement("div");
+    b.className = "bar";
+    b.style.height = (18 + Math.random() * 46) + "px";
+    b.style.animationDelay = (Math.random() * 0.6) + "s";
+    barsEl.appendChild(b);
+  }
+
+  const fileInput = document.getElementById("fileInput");
+  const btnUpload = document.getElementById("btnUpload");
+  const btnPick = document.getElementById("btnPick");
+  const btnUploadTop = document.getElementById("btnUploadTop");
+  const btnImport = document.getElementById("btnImport");
+  const dropZone = document.getElementById("dropZone");
+  const fileName = document.getElementById("fileName");
+  const hint = document.getElementById("hint");
+  const btnMaster = document.getElementById("btnMaster");
+  const btnDownload = document.getElementById("btnDownload");
+  const preview = document.getElementById("preview");
+  const intensity = document.getElementById("intensity");
+  const lufs = document.getElementById("lufs");
+  const styleSel = document.getElementById("style");
+
+  let currentFile = null;
+  let currentUrl = null;
+
+  function setEnabled(on){
+    btnMaster.disabled = !on;
+    btnDownload.classList.toggle("disabled", !on);
+  }
+
+  function setFile(file){
+    currentFile = file || null;
+
+    if (!currentFile){
+      fileName.textContent = "Sin archivo";
+      hint.textContent = "Arrastra tu archivo aquí o usa “Subir archivo”.";
+      if (preview){ preview.style.display = "none"; preview.src = ""; }
+      if (currentUrl) URL.revokeObjectURL(currentUrl);
+      currentUrl = null;
+      setEnabled(false);
+      return;
+    }
+
+    fileName.textContent = currentFile.name;
+    hint.textContent = "Listo: ajusta estilo e intensidad y presiona Masterizar.";
+    setEnabled(true);
+
+    try{
+      if (currentUrl) URL.revokeObjectURL(currentUrl);
+      currentUrl = URL.createObjectURL(currentFile);
+      if (preview){
+        preview.src = currentUrl;
+        preview.style.display = "block";
+      }
+    }catch(e){}
+  }
+
+  // abrir selector
+  function pick(){ fileInput.click(); }
+  btnUpload.addEventListener("click", pick);
+  btnPick.addEventListener("click", pick);
+  btnUploadTop.addEventListener("click", pick);
+  btnImport.addEventListener("click", pick);
+  fileInput.addEventListener("change", (e) => setFile(e.target.files?.[0] || null));
+
+  // drag drop
+  ["dragenter","dragover"].forEach(evt => {
+    dropZone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = "rgba(0,215,255,.35)";
+    });
+  });
+  ["dragleave","drop"].forEach(evt => {
+    dropZone.addEventListener(evt, (e) => {
+      e.preventDefault();
+      dropZone.style.borderColor = "rgba(255,255,255,.12)";
+    });
+  });
+  dropZone.addEventListener("drop", (e) => {
+    const f = e.dataTransfer?.files?.[0];
+    if (f) setFile(f);
+  });
+
+  function updateLufs(){
+    const v = Number(intensity.value);
+    const val = (-14 + (v/100)*7).toFixed(1);
+    lufs.textContent = `${val} LUFS`;
+  }
+  intensity.addEventListener("input", updateLufs);
+  updateLufs();
+
+  btnMaster.addEventListener("click", () => {
+    if (!currentFile) return;
+    const old = btnMaster.textContent;
+    btnMaster.textContent = "Procesando…";
+    btnMaster.disabled = true;
+
+    // demo (sin master real aún)
+    setTimeout(() => {
+      btnMaster.textContent = old;
+      btnMaster.disabled = false;
+      alert(`Demo: listo para conectar backend.\nEstilo: ${styleSel.value}\nIntensidad: ${intensity.value}`);
+    }, 900);
+  });
+
+  btnDownload.addEventListener("click", () => {
+    if (!currentFile || !currentUrl) return;
+    const a = document.createElement("a");
+    a.href = currentUrl;
+    a.download = `WarMaster_${styleSel.value}_${currentFile.name}`;
+    a.click();
+  });
+</script>
+</body>
+</html>
