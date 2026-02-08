@@ -330,56 +330,6 @@ main{
     Análisis inteligente • Compresión precisa • Loudness profesional
   </p>
 </section>
-<section class="section" id="master">
-  <h2>Masteriza un track</h2>
-  <p class="lead">Sube tu audio, elige un estilo y renderiza tu master.</p>
-
-  <div class="wm-master card" id="dropZone">
-    <div class="wm-head">
-      <div class="wm-filepill" id="fileName">Sin archivo</div>
-
-      <div class="wm-actions">
-        <button class="btn primary" type="button" id="btnUpload">Subir archivo</button>
-        <button class="btn" type="button" id="btnImport">Importar</button>
-        <input id="fileInput" type="file" accept="audio/*" hidden />
-      </div>
-    </div>
-
-    <div class="wm-grid">
-      <div class="wm-field">
-        <label for="style">Estilo</label>
-        <select id="style" class="wm-select">
-          <option value="clean">Clean / Balanced</option>
-          <option value="club">Club / Loud</option>
-          <option value="warm">Warm / Analog</option>
-          <option value="bright">Bright / Pop</option>
-          <option value="heavy">Heavy / Rock</option>
-        </select>
-      </div>
-
-      <div class="wm-field">
-        <label for="intensity">Intensidad</label>
-        <input type="range" id="intensity" min="0" max="100" value="55" class="wm-range"/>
-        <div class="wm-range-meta">
-          <span>Suave</span>
-          <span class="wm-pill" id="lufs">-9.0 LUFS</span>
-          <span>Agresiva</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="wm-drop">
-      <div class="wm-bars" id="bars"></div>
-      <div class="wm-hint" id="hint">Arrastra tu archivo aquí o usa “Subir archivo”.</div>
-    </div>
-
-    <div class="wm-bottom">
-      <audio id="preview" controls style="display:none;"></audio>
-      <button class="btn primary" type="button" id="btnMaster" disabled>Masterizar</button>
-    </div>
-  </div>
-</section>
-
   <section class="section" id="como">
   <h2>Cómo funciona</h2>
   <p class="lead">Sube tu track, elige un carácter y descarga un master listo para publicar.</p>
