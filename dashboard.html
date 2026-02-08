@@ -411,51 +411,6 @@
             </div>
           </section>
 
-          <!-- Upload / New master -->
-          <section class="card">
-            <div class="card-h">
-              <h2>Nuevo master</h2>
-              <span class="pill"><span class="dot run"></span> UI demo</span>
-            </div>
-            <div class="card-b">
-              <div class="split">
-                <div class="field">
-                  <label for="file">Archivo</label>
-                  <input type="text" id="file" placeholder="Arrastra aquí o elige un archivo (demo)" readonly />
-                  <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
-                    <button class="btn" type="button" id="btnPick">Seleccionar</button>
-                    <button class="btn" type="button" id="btnPaste">Pegar nombre</button>
-                  </div>
-                </div>
-
-                <div class="field">
-                  <label for="preset">Preset</label>
-                  <select id="preset">
-                    <option value="clean">Clean / Balanced</option>
-                    <option value="club">Club / Loud</option>
-                    <option value="warm">Warm / Analog</option>
-                    <option value="bright">Bright / Pop</option>
-                    <option value="heavy">Heavy / Rock</option>
-                  </select>
-
-                  <div style="height:10px"></div>
-
-                  <label for="intensity">Intensidad</label>
-                  <input type="range" id="intensity" min="0" max="100" value="55" />
-                  <div style="display:flex; justify-content:space-between; font-size:12px; color:rgba(233,237,247,.65); margin-top:6px;">
-                    <span>Suave</span><span>Agresiva</span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="row">
-                <span class="pill" id="outFmt"><span class="dot"></span> WAV 24-bit</span>
-                <span class="pill" id="outLufs"><span class="dot"></span> -9.0 LUFS</span>
-                <button class="btn primary" type="button" id="btnStartJob" disabled>Renderizar</button>
-              </div>
-            </div>
-          </section>
-
           <!-- Library -->
           <section id="library" class="card">
             <div class="card-h">
