@@ -78,6 +78,10 @@
       color: var(--text);
       cursor:pointer;
       font-weight:800;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
     }
     .btn:hover{ background: rgba(255,255,255,.08); border-color: rgba(255,255,255,.22); }
     .btn.primary{
@@ -85,6 +89,7 @@
       background: linear-gradient(90deg, rgba(138,92,255,.95), rgba(0,215,255,.95));
       color:#061018;
     }
+    .ghost{ background: transparent; }
 
     /* Layout */
     main{ padding: 26px 0 70px; }
@@ -119,17 +124,7 @@
     }
     .card > *{ position:relative; }
 
-    .master{
-      padding:18px;
-    }
-    .master-head{
-      display:flex;
-      justify-content:space-between;
-      align-items:center;
-      gap: 12px;
-      flex-wrap:wrap;
-      margin-bottom: 12px;
-    }
+    /* Pills */
     .pill{
       padding: 10px 12px;
       border-radius: 999px;
@@ -142,15 +137,12 @@
       overflow:hidden;
       text-overflow:ellipsis;
       white-space:nowrap;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
     }
-    .grid{
-      display:grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 14px;
-      margin-top: 10px;
-    }
-    @media (max-width: 980px){ .grid{ grid-template-columns:1fr; } }
 
+    /* Form fields */
     .field{
       border-radius: 16px;
       border: 1px solid rgba(255,255,255,.10);
@@ -164,6 +156,15 @@
       color: rgba(233,237,247,.72);
       margin-bottom: 8px;
     }
+    input[type="text"]{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline:none;
+    }
     select{
       width:100%;
       padding: 10px 12px;
@@ -174,65 +175,47 @@
       outline:none;
     }
     input[type="range"]{ width:100%; accent-color: var(--b); }
-    .meta{
-      margin-top: 10px;
+
+    /* Nuevo master layout */
+    .card-h{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
       display:flex;
       justify-content:space-between;
-      align-items:center;
-      gap:10px;
-      font-size: 12px;
-      color: rgba(233,237,247,.62);
-    }
-
-    .drop{
-      margin-top: 14px;
-      border-radius: 18px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(0,0,0,.22);
-      padding: 12px;
-    }
-    .bars{
-      height: 70px;
-      display:flex;
-      align-items:flex-end;
-      gap: 4px;
-    }
-    .bar{
-      flex:1;
-      height: 18px;
-      border-radius: 6px;
-      background: linear-gradient(180deg, rgba(0,215,255,.95), rgba(138,92,255,.75));
-      opacity:.55;
-      transform-origin: bottom;
-      animation: bounce 1.2s ease-in-out infinite;
-    }
-    .bar:nth-child(3n){ animation-duration: 1.05s; opacity:.62; }
-    .bar:nth-child(4n){ animation-duration: 1.35s; opacity:.52; }
-    .bar:nth-child(5n){ animation-duration: 1.55s; opacity:.45; }
-    @keyframes bounce{ 0%,100%{ transform: scaleY(.35);} 50%{ transform: scaleY(1);} }
-
-    .hint{
-      margin-top: 10px;
-      font-size: 12px;
-      color: rgba(233,237,247,.62);
-    }
-
-    .bottom{
-      margin-top: 14px;
-      display:flex;
       gap: 10px;
       align-items:center;
-      flex-wrap:wrap;
     }
-    audio{
-      flex: 1 1 320px;
-      width:100%;
-      border-radius: 14px;
-      border: 1px solid rgba(255,255,255,.10);
-      background: rgba(255,255,255,.06);
+    .card-h h2{ margin:0; font-size:14px; letter-spacing:.2px; }
+
+    .card-b{ padding: 14px; }
+
+    .split{
+      display:grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    @media (max-width: 980px){ .split{ grid-template-columns: 1fr; } }
+
+    .row{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      justify-content:flex-end;
+      align-items:center;
+      margin-top: 10px;
     }
 
-    .ghost{ background: transparent; }
+    .dot{
+      width:8px; height:8px;
+      border-radius:999px;
+      display:inline-block;
+      background: rgba(233,237,247,.45);
+    }
+    .dot.run{
+      background: rgba(0,215,255,.85);
+      box-shadow: 0 0 0 6px rgba(0,215,255,.12);
+    }
+
     .disabled{ opacity:.6; pointer-events:none; }
   </style>
 </head>
@@ -256,179 +239,73 @@
 
 <main>
   <div class="wrap">
+
     <div class="top">
       <div>
         <h1>Masterizado</h1>
-        <p class="sub">Sube tu audio, define el estilo y ajusta la intensidad. Este flujo queda listo para conectar el motor de masterización cuando tengas PC/backend.</p>
+        <p class="sub">
+          Sube tu audio, elige un preset y ajusta la intensidad. Esta pantalla mantiene la línea gráfica de WarMaster.
+        </p>
       </div>
+
       <div style="display:flex; gap:10px; flex-wrap:wrap;">
         <button class="btn" id="btnImport" type="button">Importar</button>
-        <button class="btn primary" id="btnMaster" type="button" disabled>Masterizar</button>
+        <button class="btn primary" id="btnMasterTop" type="button" disabled>Renderizar</button>
       </div>
     </div>
 
-    <section class="card master" id="dropZone">
-      <div class="master-head">
-        <span class="pill" id="fileName">Sin archivo</span>
-        <div style="display:flex; gap:10px; flex-wrap:wrap;">
-          <button class="btn primary" id="btnUpload" type="button">Subir archivo</button>
-          <button class="btn" id="btnPick" type="button">Elegir otro</button>
-          <input id="fileInput" type="file" accept="audio/*" hidden />
-        </div>
+    <!-- NUEVO MASTER (movido desde dashboard) -->
+    <section class="card" id="newMasterCard">
+      <div class="card-h">
+        <h2>Nuevo master</h2>
+        <span class="pill"><span class="dot run"></span> UI demo</span>
       </div>
 
-      <div class="grid">
-        <div class="field">
-          <label for="style">Estilo</label>
-          <select id="style">
-            <option value="clean">Clean / Balanced</option>
-            <option value="club">Club / Loud</option>
-            <option value="warm">Warm / Analog</option>
-            <option value="bright">Bright / Pop</option>
-            <option value="heavy">Heavy / Rock</option>
-          </select>
-        </div>
+      <div class="card-b">
+        <div class="split">
+          <div class="field">
+            <label for="file">Archivo</label>
+            <input type="text" id="file" placeholder="Arrastra aquí o elige un archivo (demo)" readonly />
+            <div style="margin-top:10px; display:flex; gap:10px; flex-wrap:wrap;">
+              <button class="btn" type="button" id="btnPick">Seleccionar</button>
+              <button class="btn" type="button" id="btnPaste">Pegar nombre</button>
+            </div>
+          </div>
 
-        <div class="field">
-          <label for="intensity">Intensidad</label>
-          <input type="range" id="intensity" min="0" max="100" value="55" />
-          <div class="meta">
-            <span>Suave</span>
-            <span class="pill" id="lufs">-9.0 LUFS</span>
-            <span>Agresiva</span>
+          <div class="field">
+            <label for="preset">Preset</label>
+            <select id="preset">
+              <option value="clean">Clean / Balanced</option>
+              <option value="club">Club / Loud</option>
+              <option value="warm">Warm / Analog</option>
+              <option value="bright">Bright / Pop</option>
+              <option value="heavy">Heavy / Rock</option>
+            </select>
+
+            <div style="height:10px"></div>
+
+            <label for="intensity2">Intensidad</label>
+            <input type="range" id="intensity2" min="0" max="100" value="55" />
+            <div style="display:flex; justify-content:space-between; font-size:12px; color:rgba(233,237,247,.65); margin-top:6px;">
+              <span>Suave</span><span>Agresiva</span>
+            </div>
           </div>
         </div>
-      </div>
 
-      <div class="drop">
-        <div class="bars" id="bars"></div>
-        <div class="hint" id="hint">Arrastra tu archivo aquí o usa “Subir archivo”.</div>
-      </div>
-
-      <div class="bottom">
-        <audio id="preview" controls style="display:none;"></audio>
-        <button class="btn primary disabled" id="btnDownload" type="button">Descargar (demo)</button>
+        <div class="row">
+          <span class="pill" id="outFmt"><span class="dot"></span> WAV 24-bit</span>
+          <span class="pill" id="outLufs"><span class="dot"></span> -10.1 LUFS</span>
+          <button class="btn primary" type="button" id="btnStartJob" disabled>Renderizar</button>
+        </div>
       </div>
     </section>
+
+    <!-- input real para conectar luego (por ahora oculto) -->
+    <input id="fileInput" type="file" accept="audio/*" hidden />
+
   </div>
 </main>
 
-<script>
-  // barras
-  const barsEl = document.getElementById("bars");
-  for (let i = 0; i < 42; i++){
-    const b = document.createElement("div");
-    b.className = "bar";
-    b.style.height = (18 + Math.random() * 46) + "px";
-    b.style.animationDelay = (Math.random() * 0.6) + "s";
-    barsEl.appendChild(b);
-  }
-
-  const fileInput = document.getElementById("fileInput");
-  const btnUpload = document.getElementById("btnUpload");
-  const btnPick = document.getElementById("btnPick");
-  const btnUploadTop = document.getElementById("btnUploadTop");
-  const btnImport = document.getElementById("btnImport");
-  const dropZone = document.getElementById("dropZone");
-  const fileName = document.getElementById("fileName");
-  const hint = document.getElementById("hint");
-  const btnMaster = document.getElementById("btnMaster");
-  const btnDownload = document.getElementById("btnDownload");
-  const preview = document.getElementById("preview");
-  const intensity = document.getElementById("intensity");
-  const lufs = document.getElementById("lufs");
-  const styleSel = document.getElementById("style");
-
-  let currentFile = null;
-  let currentUrl = null;
-
-  function setEnabled(on){
-    btnMaster.disabled = !on;
-    btnDownload.classList.toggle("disabled", !on);
-  }
-
-  function setFile(file){
-    currentFile = file || null;
-
-    if (!currentFile){
-      fileName.textContent = "Sin archivo";
-      hint.textContent = "Arrastra tu archivo aquí o usa “Subir archivo”.";
-      if (preview){ preview.style.display = "none"; preview.src = ""; }
-      if (currentUrl) URL.revokeObjectURL(currentUrl);
-      currentUrl = null;
-      setEnabled(false);
-      return;
-    }
-
-    fileName.textContent = currentFile.name;
-    hint.textContent = "Listo: ajusta estilo e intensidad y presiona Masterizar.";
-    setEnabled(true);
-
-    try{
-      if (currentUrl) URL.revokeObjectURL(currentUrl);
-      currentUrl = URL.createObjectURL(currentFile);
-      if (preview){
-        preview.src = currentUrl;
-        preview.style.display = "block";
-      }
-    }catch(e){}
-  }
-
-  // abrir selector
-  function pick(){ fileInput.click(); }
-  btnUpload.addEventListener("click", pick);
-  btnPick.addEventListener("click", pick);
-  btnUploadTop.addEventListener("click", pick);
-  btnImport.addEventListener("click", pick);
-  fileInput.addEventListener("change", (e) => setFile(e.target.files?.[0] || null));
-
-  // drag drop
-  ["dragenter","dragover"].forEach(evt => {
-    dropZone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      dropZone.style.borderColor = "rgba(0,215,255,.35)";
-    });
-  });
-  ["dragleave","drop"].forEach(evt => {
-    dropZone.addEventListener(evt, (e) => {
-      e.preventDefault();
-      dropZone.style.borderColor = "rgba(255,255,255,.12)";
-    });
-  });
-  dropZone.addEventListener("drop", (e) => {
-    const f = e.dataTransfer?.files?.[0];
-    if (f) setFile(f);
-  });
-
-  function updateLufs(){
-    const v = Number(intensity.value);
-    const val = (-14 + (v/100)*7).toFixed(1);
-    lufs.textContent = `${val} LUFS`;
-  }
-  intensity.addEventListener("input", updateLufs);
-  updateLufs();
-
-  btnMaster.addEventListener("click", () => {
-    if (!currentFile) return;
-    const old = btnMaster.textContent;
-    btnMaster.textContent = "Procesando…";
-    btnMaster.disabled = true;
-
-    // demo (sin master real aún)
-    setTimeout(() => {
-      btnMaster.textContent = old;
-      btnMaster.disabled = false;
-      alert(`Demo: listo para conectar backend.\nEstilo: ${styleSel.value}\nIntensidad: ${intensity.value}`);
-    }, 900);
-  });
-
-  btnDownload.addEventListener("click", () => {
-    if (!currentFile || !currentUrl) return;
-    const a = document.createElement("a");
-    a.href = currentUrl;
-    a.download = `WarMaster_${styleSel.value}_${currentFile.name}`;
-    a.click();
-  });
-</script>
+<!-- JS lo añadimos después como dijiste -->
 </body>
 </html>
