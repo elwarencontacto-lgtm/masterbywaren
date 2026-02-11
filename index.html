@@ -1,437 +1,1028 @@
 <!doctype html>
 <html lang="es">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WarMaster — Masterización Online</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WarMaster — Masterización Online</title>
+  <meta name="description" content="Masterización online rápida y profesional. Sube tu track, elige un estilo y descarga un master listo para Spotify, YouTube y Apple Music." />
 
-<style>
-  .sound-visual{
-  margin:60px auto 80px;
-  text-align:center;
-}
+  <style>
+    :root{
+      --bg0:#07080c;
+      --bg1:#0b0e16;
+      --text:#e9edf7;
+      --muted: rgba(233,237,247,.72);
+      --a:#8a5cff;
+      --b:#00d7ff;
+      --c:#00ff9a;
 
-.bars{
-  display:flex;
-  justify-content:center;
-  align-items:flex-end;
-  gap:6px;
-  height:80px;
-}
+      --shadow: 0 24px 70px rgba(0,0,0,.55);
+      --radius: 22px;
+      --max: 1180px;
+    }
 
-.bars span{
-  width:8px;
-  height:20px;
-  background:linear-gradient(180deg,var(--a),var(--b),var(--c));
-  border-radius:6px;
-  animation: pulse 1.2s infinite ease-in-out;
-}
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
 
-.bars span:nth-child(odd){ animation-delay:.2s; }
-.bars span:nth-child(even){ animation-delay:.4s; }
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 500px at 10% 10%, rgba(138,92,255,.22), transparent 55%),
+        radial-gradient(800px 500px at 90% 15%, rgba(0,215,255,.18), transparent 55%),
+        radial-gradient(700px 500px at 60% 90%, rgba(0,255,154,.10), transparent 55%),
+        linear-gradient(180deg, var(--bg0), var(--bg1) 55%, #06070b);
+      overflow-x:hidden;
+    }
 
-@keyframes pulse{
-  0%{ height:20px; opacity:.4; }
-  50%{ height:80px; opacity:1; }
-  100%{ height:20px; opacity:.4; }
-}
+    a{ color:inherit; text-decoration:none; }
+    .wrap{ width:min(var(--max), calc(100% - 40px)); margin:0 auto; }
 
-.sound-text{
-  margin-top:18px;
-  color:var(--muted);
-  font-size:14px;
-  letter-spacing:.4px;
-}
+    .grid-bg{
+      position: fixed;
+      inset: 0;
+      pointer-events:none;
+      opacity:.32;
+      background:
+        linear-gradient(to right, rgba(255,255,255,.03) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(255,255,255,.03) 1px, transparent 1px);
+      background-size: 54px 54px;
+      mask-image: radial-gradient(600px 400px at 50% 10%, #000 60%, transparent 100%);
+    }
 
-:root{
-  --bg0:#07080c;
-  --bg1:#0b0e16;
-  --text:#e9edf7;
-  --muted: rgba(233,237,247,.72);
-  --a:#8a5cff;
-  --b:#00d7ff;
-  --c:#00ff9a;
-}
+    header{
+      position: sticky;
+      top:0;
+      z-index:50;
+      backdrop-filter: blur(14px);
+      background: rgba(7,8,12,.55);
+      border-bottom:1px solid rgba(255,255,255,.08);
+    }
 
-*{ box-sizing:border-box; }
+    .nav{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:14px;
+      padding:16px 0;
+      flex-wrap:wrap;
+    }
 
-body{
-  margin:0;
-  font-family: Arial, sans-serif;
-  color:var(--text);
-  background:
-    radial-gradient(900px 500px at 10% 10%, rgba(138,92,255,.22), transparent 55%),
-    radial-gradient(800px 500px at 90% 15%, rgba(0,215,255,.18), transparent 55%),
-    linear-gradient(180deg, var(--bg0), var(--bg1));
-}
+    .brand{
+      font-size:22px;
+      font-weight:950;
+      letter-spacing:.2px;
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
 
-header{
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
-  padding:20px 28px;
-  border-bottom:1px solid rgba(255,255,255,.08);
-}
+    .dotlogo{
+      width:34px;height:34px;border-radius:12px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(0,215,255,.95), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(138,92,255,.95), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    }
 
-.brand{
-  font-size:22px;
-  font-weight:800;
-}
+    .grad{
+      background:linear-gradient(90deg,var(--a),var(--b),var(--c));
+      -webkit-background-clip:text;
+      background-clip:text;
+      color:transparent;
+    }
 
-.grad{
-  background:linear-gradient(90deg,#8a5cff,#00d7ff,#00ff9a);
-  -webkit-background-clip:text;
-  color:transparent;
-}
+    .navlinks{
+      display:flex;
+      gap:12px;
+      align-items:center;
+      flex-wrap:wrap;
+      color: rgba(233,237,247,.78);
+      font-size: 13px;
+      font-weight: 900;
+    }
+    .navlinks a{
+      padding:8px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+    }
+    .navlinks a:hover{
+      border-color: rgba(0,215,255,.24);
+      background: rgba(255,255,255,.05);
+    }
 
-.btn{
-  padding:10px 16px;
-  border-radius:14px;
-  border:none;
-  cursor:pointer;
-  font-weight:700;
-}
+    .btn{
+      padding:10px 16px;
+      border-radius:14px;
+      border:1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+      font-weight:950;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      user-select:none;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease, box-shadow .12s ease;
+      gap:10px;
+    }
+    .btn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.22);
+    }
+    .btn.primary{
+      border:none;
+      background: linear-gradient(90deg, rgba(138,92,255,.95), rgba(0,215,255,.95));
+      color:#061018;
+      box-shadow: 0 18px 60px rgba(0,0,0,.55);
+    }
+    .btn.neon{
+      background: rgba(0,0,0,.16);
+      border: 1px solid rgba(0,215,255,.35);
+      box-shadow: 0 0 0 6px rgba(0,215,255,.10), 0 0 34px rgba(0,215,255,.10);
+    }
+    .btn.neon:hover{
+      border-color: rgba(0,215,255,.65);
+      box-shadow: 0 0 0 8px rgba(0,215,255,.12), 0 0 44px rgba(0,215,255,.12);
+    }
+    .btn.alt{
+      background: rgba(0,0,0,.14);
+      border: 1px solid rgba(138,92,255,.30);
+      box-shadow: 0 0 0 6px rgba(138,92,255,.10), 0 0 34px rgba(138,92,255,.10);
+    }
+    .btn.alt:hover{
+      border-color: rgba(138,92,255,.60);
+      box-shadow: 0 0 0 8px rgba(138,92,255,.12), 0 0 44px rgba(138,92,255,.12);
+    }
 
-.btn.primary{
-  background:linear-gradient(90deg,#8a5cff,#00d7ff);
-  color:#000;
-}
+    main{ padding: 30px 0 90px; }
 
-.hero{
-  max-width:1000px;
-  margin:90px auto 60px;
-  padding:0 24px;
-  text-align:center;
-}
+    .hero{ padding: 52px 0 14px; }
+    .heroGrid{
+      display:grid;
+      grid-template-columns: 1.2fr .8fr;
+      gap: 18px;
+      align-items: start;
+    }
+    @media (max-width: 980px){ .heroGrid{ grid-template-columns: 1fr; } }
 
-.hero h1{
-  font-size:48px;
-  margin-bottom:18px;
-}
+    .heroCard{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      position:relative;
+      padding: 22px;
+    }
+    .heroCard::before{
+      content:"";
+      position:absolute; inset:-1px;
+      background:
+        radial-gradient(520px 260px at 15% 20%, rgba(138,92,255,.18), transparent 60%),
+        radial-gradient(520px 260px at 85% 20%, rgba(0,215,255,.14), transparent 60%),
+        radial-gradient(520px 260px at 55% 95%, rgba(0,255,154,.10), transparent 60%);
+      pointer-events:none;
+      opacity:.95;
+    }
+    .heroCard > *{ position:relative; }
 
-.hero p{
-  color:var(--muted);
-  line-height:1.6;
-  margin-bottom:28px;
-}
+    h1{
+      margin:0;
+      font-size: clamp(34px, 4.6vw, 52px);
+      letter-spacing:-1px;
+      line-height:1.05;
+    }
+    .lead{
+      margin: 14px 0 0;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 72ch;
+    }
 
-.actions{
-  display:flex;
-  justify-content:center;
-  gap:14px;
-  flex-wrap:wrap;
-}
+    .heroActions{
+      display:flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items:center;
+      margin-top: 18px;
+    }
 
-.section{
-  max-width:1100px;
-  margin:0 auto;
-  padding:60px 24px;
-}
+    .chips{
+      display:flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .chip{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(233,237,247,.88);
+      font-size: 12px;
+      font-weight: 950;
+    }
+    .chip i{
+      width: 9px; height: 9px;
+      border-radius: 999px;
+      background: rgba(0,215,255,.9);
+      box-shadow: 0 0 0 6px rgba(0,215,255,.12);
+      display:inline-block;
+    }
 
-.section h2{
-  font-size:28px;
-  margin-bottom:14px;
-}
+    .trustCard{
+      border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      box-shadow: 0 14px 50px rgba(0,0,0,.35);
+      overflow:hidden;
+    }
+    .trustHead{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .trustHead b{
+      font-size: 12px;
+      letter-spacing:.2px;
+      color: rgba(233,237,247,.90);
+    }
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      font-weight: 950;
+      font-size: 12px;
+      color: rgba(233,237,247,.9);
+    }
+    .dot{
+      width:8px; height:8px;
+      border-radius:999px;
+      background: rgba(0,255,154,.75);
+      box-shadow: 0 0 0 6px rgba(0,255,154,.12);
+    }
+    .trustBody{
+      padding: 14px;
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+    }
 
-.cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
-  gap:18px;
-}
+    .stats{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 980px){ .stats{ grid-template-columns: 1fr; } }
 
-.card{
-  background:rgba(255,255,255,.05);
-  border:1px solid rgba(255,255,255,.08);
-  border-radius:18px;
-  padding:20px;
-}
+    .stat{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.16);
+      padding: 12px;
+    }
+    .stat .k{
+      color: rgba(233,237,247,.65);
+      font-size: 11px;
+      font-weight: 950;
+      letter-spacing:.2px;
+    }
+    .stat .v{
+      margin-top: 6px;
+      font-size: 20px;
+      font-weight: 980;
+      letter-spacing:-.4px;
+    }
 
-.price{
-  font-size:32px;
-  font-weight:800;
-}
-  /* ====== WARMASTER UI UPGRADE (LANDR-like) ====== */
-main{
-  max-width: 1180px;
-  margin: 0 auto;
-  padding: 0 24px 80px;
-}
+    .trustList{
+      display:flex;
+      flex-direction:column;
+      gap: 8px;
+      color: rgba(233,237,247,.76);
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .trustList .item{
+      display:flex;
+      gap: 10px;
+      align-items:flex-start;
+      padding: 10px 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+    }
+    .check{
+      width: 20px; height: 20px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, rgba(138,92,255,.95), rgba(0,215,255,.75));
+      border: 1px solid rgba(255,255,255,.14);
+      color:#061018;
+      display:flex; align-items:center; justify-content:center;
+      font-weight: 950;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
 
-.section{
-  padding: 70px 0;
-}
+    .section{ padding: 56px 0 0; }
+    .sectionTitle{
+      margin: 0 0 12px;
+      font-size: clamp(24px, 3vw, 40px);
+      letter-spacing:-.8px;
+    }
+    .sectionLead{
+      margin: 0 0 18px;
+      color: var(--muted);
+      font-size: 14px;
+      line-height: 1.7;
+      max-width: 72ch;
+    }
 
-.section h2{
-  font-size: 44px;
-  margin: 0 0 18px;
-  letter-spacing: -1px;
-}
+    .cards{
+      display:grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    @media (max-width: 980px){ .cards{ grid-template-columns: 1fr; } }
 
-.section .lead{
-  margin: 0 0 26px;
-  color: var(--muted);
-  font-size: 15px;
-  line-height: 1.6;
-  max-width: 70ch;
-}
+    .card{
+      position: relative;
+      border-radius: var(--radius);
+      padding: 18px 18px 16px;
+      background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
+      border: 1px solid rgba(255,255,255,.12);
+      box-shadow: var(--shadow);
+      overflow:hidden;
+      transition: transform .14s ease, border-color .14s ease, background .14s ease;
+    }
+    .card:hover{
+      transform: translateY(-3px);
+      border-color: rgba(0,215,255,.26);
+    }
 
-/* grid más pro */
-.cards{
-  display:grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-}
+    .kicker{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      margin-bottom: 10px;
+    }
+    .icon{
+      width: 40px; height: 40px;
+      border-radius: 16px;
+      display:flex; align-items:center; justify-content:center;
+      background: linear-gradient(135deg, rgba(138,92,255,.95), rgba(0,215,255,.75));
+      border: 1px solid rgba(255,255,255,.14);
+      box-shadow: 0 16px 46px rgba(0,0,0,.55);
+      color:#061018;
+      font-weight: 980;
+      user-select:none;
+      flex: 0 0 auto;
+    }
+    .card h3{ margin:0; font-size: 16px; letter-spacing: -.2px; }
+    .card p{
+      margin: 10px 0 0;
+      color: rgba(233,237,247,.72);
+      font-size: 13px;
+      line-height: 1.6;
+    }
 
-@media (max-width: 980px){
-  .cards{ grid-template-columns: 1fr; }
-  .section h2{ font-size: 34px; }
-}
+    .plan{
+      display:flex;
+      flex-direction:column;
+      gap: 12px;
+      min-height: 220px;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap: 8px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.06);
+      color: rgba(233,237,247,.9);
+      font-size: 12px;
+      font-weight: 980;
+      width: fit-content;
+    }
+    .badge i{
+      width: 9px; height:9px;
+      border-radius: 999px;
+      background: rgba(0,215,255,.9);
+      box-shadow: 0 0 0 6px rgba(0,215,255,.12);
+      display:inline-block;
+    }
+    .price{
+      font-size: 44px;
+      letter-spacing: -1px;
+      font-weight: 990;
+    }
+    .meta{
+      margin-top:-6px;
+      color: rgba(233,237,247,.70);
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .fine{
+      color: rgba(233,237,247,.55);
+      font-size: 12px;
+      line-height: 1.5;
+      margin-top: 10px;
+    }
 
-/* cards con profundidad + glow */
-.card{
-  position: relative;
-  border-radius: 22px;
-  padding: 20px 20px 18px;
-  background: linear-gradient(180deg, rgba(255,255,255,.07), rgba(255,255,255,.04));
-  border: 1px solid rgba(255,255,255,.12);
-  box-shadow: 0 24px 70px rgba(0,0,0,.55);
-  overflow:hidden;
-  transition: transform .14s ease, border-color .14s ease, background .14s ease;
-}
+    footer{
+      margin-top: 70px;
+      padding: 18px 0 0;
+      border-top: 1px solid rgba(255,255,255,.08);
+      color: rgba(233,237,247,.55);
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .footRow{
+      display:flex;
+      justify-content:space-between;
+      gap: 12px;
+      flex-wrap:wrap;
+      padding: 16px 0 0;
+    }
+    .footLinks{
+      display:flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+    .footLinks a{
+      padding: 6px 10px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.03);
+    }
+    .footLinks a:hover{
+      border-color: rgba(0,215,255,.24);
+      background: rgba(255,255,255,.05);
+    }
 
-.card::before{
-  content:"";
-  position:absolute; inset:-1px;
-  background:
-    radial-gradient(420px 220px at 20% 20%, rgba(138,92,255,.18), transparent 60%),
-    radial-gradient(420px 220px at 85% 30%, rgba(0,215,255,.14), transparent 60%),
-    radial-gradient(520px 240px at 40% 95%, rgba(0,255,154,.10), transparent 60%);
-  pointer-events:none;
-  opacity:.95;
-}
+    /* ===== Modal ===== */
+    .modalOverlay{
+      position: fixed;
+      inset: 0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding: 18px;
+      background: rgba(0,0,0,.62);
+      backdrop-filter: blur(8px);
+      z-index: 999;
+      animation: fadeIn .14s ease;
+    }
+    .modalOverlay.open{ display:flex; }
 
-.card > *{ position:relative; }
+    @keyframes fadeIn{
+      from{ opacity:0; }
+      to{ opacity:1; }
+    }
 
-.card:hover{
-  transform: translateY(-3px);
-  border-color: rgba(0,215,255,.26);
-  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.045));
-}
+    .modal{
+      width: min(520px, 100%);
+      border-radius: 24px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+      box-shadow: 0 30px 110px rgba(0,0,0,.7);
+      overflow:hidden;
+      position:relative;
+      transform: translateY(8px) scale(.98);
+      animation: pop .16s ease forwards;
+    }
+    @keyframes pop{
+      to{ transform: translateY(0) scale(1); }
+    }
+    .modal::before{
+      content:"";
+      position:absolute; inset:-2px;
+      background:
+        radial-gradient(420px 220px at 20% 20%, rgba(138,92,255,.22), transparent 60%),
+        radial-gradient(420px 220px at 85% 30%, rgba(0,215,255,.18), transparent 60%),
+        radial-gradient(520px 240px at 40% 95%, rgba(0,255,154,.12), transparent 60%);
+      pointer-events:none;
+      opacity:.95;
+    }
+    .modal > *{ position:relative; }
 
-.card .kicker{
-  display:flex;
-  align-items:center;
-  gap:10px;
-  margin-bottom: 10px;
-}
+    .modalHead{
+      padding: 14px 14px 10px;
+      border-bottom: 1px solid rgba(255,255,255,.08);
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      gap:10px;
+    }
+    .modalTitle{
+      font-weight: 980;
+      font-size: 14px;
+      letter-spacing:.2px;
+      display:flex;
+      gap:10px;
+      align-items:center;
+    }
+    .miniLogo{
+      width:28px;height:28px;border-radius:10px;
+      background:
+        radial-gradient(circle at 30% 30%, rgba(0,215,255,.95), transparent 55%),
+        radial-gradient(circle at 70% 70%, rgba(138,92,255,.95), transparent 55%),
+        linear-gradient(135deg, rgba(255,255,255,.14), rgba(255,255,255,.02));
+      border:1px solid rgba(255,255,255,.12);
+      box-shadow: 0 12px 40px rgba(0,0,0,.45);
+    }
+    .closeBtn{
+      width: 40px;
+      height: 38px;
+      border-radius: 14px;
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      cursor:pointer;
+      font-weight: 980;
+      transition: transform .12s ease, background .12s ease, border-color .12s ease;
+    }
+    .closeBtn:hover{
+      transform: translateY(-1px);
+      background: rgba(255,255,255,.08);
+      border-color: rgba(255,255,255,.22);
+    }
 
-.icon{
-  width: 40px; height: 40px;
-  border-radius: 16px;
-  display:flex; align-items:center; justify-content:center;
-  background: linear-gradient(135deg, rgba(138,92,255,.95), rgba(0,215,255,.75));
-  border: 1px solid rgba(255,255,255,.14);
-  box-shadow: 0 16px 46px rgba(0,0,0,.55);
-  color:#061018;
-  font-weight: 900;
-  user-select:none;
-}
+    .modalBody{ padding: 14px; }
 
-.card h3{
-  margin: 0;
-  font-size: 18px;
-  letter-spacing: -.2px;
-}
+    .tabs{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+      margin-bottom: 12px;
+    }
+    .tab{
+      padding: 8px 12px;
+      border-radius: 999px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(255,255,255,.05);
+      color: rgba(233,237,247,.86);
+      font-weight: 950;
+      font-size: 12px;
+      cursor:pointer;
+      user-select:none;
+    }
+    .tab[aria-selected="true"]{
+      border: none;
+      background: linear-gradient(90deg, rgba(138,92,255,.95), rgba(0,215,255,.95));
+      color: #061018;
+      box-shadow: 0 10px 40px rgba(0,0,0,.35);
+    }
 
-.card p{
-  margin: 10px 0 0;
-  color: rgba(233,237,247,.72);
-  font-size: 13px;
-  line-height: 1.6;
-}
+    .field{
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.18);
+      padding: 12px;
+      margin-bottom: 10px;
+    }
+    .field label{
+      display:block;
+      font-size: 12px;
+      font-weight: 980;
+      color: rgba(233,237,247,.72);
+      margin-bottom: 8px;
+    }
+    .field input{
+      width:100%;
+      padding: 10px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(0,0,0,.22);
+      color: var(--text);
+      outline:none;
+    }
+    .helpRow{
+      display:flex;
+      justify-content:space-between;
+      gap: 10px;
+      flex-wrap:wrap;
+      align-items:center;
+      margin: 8px 0 0;
+      font-size: 12px;
+      color: rgba(233,237,247,.65);
+    }
+    .link{
+      color: rgba(0,215,255,.95);
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .link:hover{ text-decoration: underline; }
 
-/* precios más “plan” */
-.plan{
-  display:flex;
-  flex-direction:column;
-  gap: 12px;
-  min-height: 180px;
-}
+    .modalActions{
+      display:flex;
+      gap: 10px;
+      flex-wrap:wrap;
+      justify-content:flex-end;
+      margin-top: 10px;
+    }
 
-.price{
-  font-size: 44px;
-  letter-spacing: -1px;
-  font-weight: 900;
-}
+    .errorBox{
+      display:none;
+      margin-top: 10px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,120,120,.35);
+      background: rgba(255,120,120,.08);
+      padding: 10px 12px;
+      color: rgba(233,237,247,.9);
+      font-size: 12px;
+      line-height: 1.5;
+    }
 
-.plan .meta{
-  margin-top:-6px;
-  color: rgba(233,237,247,.70);
-  font-size: 13px;
-}
-
-.badge{
-  display:inline-flex;
-  align-items:center;
-  gap: 8px;
-  padding: 7px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255,255,255,.12);
-  background: rgba(255,255,255,.06);
-  color: rgba(233,237,247,.9);
-  font-size: 12px;
-  font-weight: 900;
-  width: fit-content;
-}
-
-.badge i{
-  width: 9px; height:9px;
-  border-radius: 999px;
-  background: rgba(0,215,255,.9);
-  box-shadow: 0 0 0 6px rgba(0,215,255,.12);
-  display:inline-block;
-}
-.btn{
-  text-decoration: none;
-  color: inherit;
-}
-
-</style>
+    .finePrint{
+      margin-top: 10px;
+      color: rgba(233,237,247,.55);
+      font-size: 12px;
+      line-height: 1.5;
+    }
+  </style>
 </head>
 
 <body>
+  <div class="grid-bg" aria-hidden="true"></div>
 
-<header>
-  <div class="brand">War<span class="grad">Master</span></div>
- <div style="display:flex; gap:10px; flex-wrap:wrap;">
-    <a href="master.html" class="btn primary">Nuevo master</a>
-    <button class="btn primary" id="btnLogin">Iniciar sesión</button>
+  <header>
+    <div class="wrap">
+      <div class="nav">
+        <a class="brand" href="index.html" aria-label="WarMaster Home">
+          <span class="dotlogo" aria-hidden="true"></span>
+          <span>War<span class="grad">Master</span></span>
+        </a>
+
+        <nav class="navlinks" aria-label="Navegación">
+          <a href="#como">Cómo funciona</a>
+          <a href="#features">Características</a>
+          <a href="#precios">Precios</a>
+        </nav>
+
+        <div style="display:flex; gap:10px; flex-wrap:wrap;">
+          <button class="btn neon" id="btnLogin" type="button">Iniciar sesión</button>
+          <button class="btn primary" id="btnRegister" type="button">Crear cuenta</button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <div class="wrap">
+
+      <section class="hero">
+        <div class="heroGrid">
+          <div class="heroCard">
+            <h1>Masteriza tu música con <span class="grad">calidad profesional</span></h1>
+            <p class="lead">
+              Sube tu track, elige un estilo y descarga un master listo para distribución.
+              Diseñado para sonar fuerte, limpio y competitivo en plataformas.
+            </p>
+
+            <div class="heroActions">
+              <a class="btn primary" href="master.html">Probar master ahora</a>
+              <button class="btn alt" id="btnDashboard" type="button">Entrar al dashboard</button>
+            </div>
+
+            <div class="chips" aria-label="Highlights">
+              <span class="chip"><i></i> Procesamiento en la nube</span>
+              <span class="chip"><i></i> A/B + Descarga</span>
+              <span class="chip"><i></i> Presets por género</span>
+              <span class="chip"><i></i> Listo para plataformas</span>
+            </div>
+          </div>
+
+          <aside class="trustCard">
+            <div class="trustHead">
+              <b>Listo para publicar</b>
+              <span class="pill"><span class="dot"></span> Online</span>
+            </div>
+
+            <div class="trustBody">
+              <div class="stats" aria-label="Estadísticas">
+                <div class="stat">
+                  <div class="k">Renders</div>
+                  <div class="v">1.000+</div>
+                </div>
+                <div class="stat">
+                  <div class="k">Tiempo promedio</div>
+                  <div class="v">~1–3 min</div>
+                </div>
+                <div class="stat">
+                  <div class="k">Formatos</div>
+                  <div class="v">WAV/MP3</div>
+                </div>
+          </div>
+          <div class="trustList" aria-label="Garantías">
+                <div class="item">
+                  <span class="check">✓</span>
+                  <div><b>Optimizado para plataformas</b><br><span style="color:rgba(233,237,247,.7);">Spotify • YouTube • Apple Music</span></div>
+                </div>
+                <div class="item">
+                  <span class="check">✓</span>
+                  <div><b>Control de intensidad</b><br><span style="color:rgba(233,237,247,.7);">Suave → agresivo sin complicarte</span></div>
+                </div>
+                <div class="item">
+                  <span class="check">✓</span>
+                  <div><b>Privacidad</b><br><span style="color:rgba(233,237,247,.7);">Tus archivos no se publican</span></div>
+                </div>
+  </div> 
+              </div>
+
+              <div class="fine">
+                * Cifras y tiempos referenciales para beta. El rendimiento depende del tamaño del audio y la carga del servidor.
+              </div>
+            </div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="section" id="como">
+        <h2 class="sectionTitle">Cómo funciona</h2>
+        <p class="sectionLead">Tres pasos para obtener un master listo para subir a plataformas.</p>
+
+        <div class="cards">
+          <div class="card">
+            <div class="kicker"><div class="icon">1</div><h3>Sube tu track</h3></div>
+            <p>WAV, MP3 y más formatos. Tu archivo se procesa automáticamente en la nube.</p>
+          </div>
+          <div class="card">
+            <div class="kicker"><div class="icon">2</div><h3>Elige el estilo</h3></div>
+            <p>Presets por carácter (Clean, Club, Warm, Bright, Heavy) + intensidad.</p>
+          </div>
+          <div class="card">
+            <div class="kicker"><div class="icon">3</div><h3>Descarga y publica</h3></div>
+            <p>Compara con A/B y descarga una versión lista para distribución.</p>
+          </div>
+        </div>
+      </section>
+      <section class="section" id="features">
+        <h2 class="sectionTitle">Características</h2>
+        <p class="sectionLead">Una experiencia rápida y pro: comparas, ajustas y publicas.</p>
+
+        <div class="cards">
+          <div class="card">
+            <div class="kicker"><div class="icon">A</div><h3>Presets por género</h3></div>
+            <p>Elige el carácter del master según el estilo de tu canción.</p>
+          </div>
+          <div class="card">
+            <div class="kicker"><div class="icon">I</div><h3>Intensidad controlada</h3></div>
+            <p>Más suave o más agresivo, sin perder el control del resultado.</p>
+          </div>
+          <div class="card">
+            <div class="kicker"><div class="icon">Q</div><h3>Exportación lista</h3></div>
+            <p>WAV/MP3 (según plan) para compartir y subir a plataformas.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="section" id="precios">
+        <h2 class="sectionTitle">Precios</h2>
+        <p class="sectionLead">Planes simples. En beta, el acceso es libre (aún sin cobro real).</p>
+
+        <div class="cards">
+          <div class="card plan">
+            <span class="badge"><i></i> Recruit</span>
+            <h3>Free</h3>
+            <div class="price">$0</div>
+            <div class="meta">2 masters/mes • MP3 • Presets básicos</div>
+            <div style="margin-top:auto;">
+              <a class="btn alt" href="master.html">Probar</a>
+            </div>
+          </div>
+
+          <div class="card plan">
+            <span class="badge"><i></i> Popular</span>
+            <h3>Pro</h3>
+            <div class="price">$12</div>
+            <div class="meta">20 masters/mes • WAV 24-bit • A/B • Targets</div>
+            <div style="margin-top:auto;">
+              <button class="btn primary" id="btnChoosePro" type="button">Elegir Pro</button>
+            </div>
+          </div>
+
+          <div class="card plan">
+            <span class="badge"><i></i> Studio</span>
+            <h3>Studio</h3>
+            <div class="price">$29</div>
+            <div class="meta">Ilimitado* • Prioridad • API / Integración</div>
+            <div style="margin-top:auto;">
+              <button class="btn primary" id="btnChooseStudio" type="button">Hablar con ventas</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="fine">
+          * “Ilimitado” sujeto a uso razonable y políticas anti-abuso (beta2).
+        </div>
+      </section>
+
+      <footer>
+        <div class="footRow">
+          <div>© <span id="year"></span> WarMaster — beta1.1 estable</div>
+          <div class="footLinks">
+            <a href="master.html">Nuevo master</a>
+            <a href="dashboard.html">Dashboard</a>
+            <a href="#como">Cómo funciona</a>
+          </div>
+        </div>
+      </footer>
+
+    </div>
+  </main> 
+  <!-- ===== MODAL AUTH ===== -->
+  <div class="modalOverlay" id="authOverlay" aria-hidden="true">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+      <div class="modalHead">
+        <div class="modalTitle" id="authTitle">
+          <span class="miniLogo" aria-hidden="true"></span>
+          <span id="authTitleText">Acceso</span>
+        </div>
+        <button class="closeBtn" type="button" id="btnAuthClose" aria-label="Cerrar">✕</button>
+      </div>
+
+      <div class="modalBody">
+        <div class="tabs" role="tablist" aria-label="Acceso">
+          <button class="tab" type="button" id="tabLogin" aria-selected="true">Iniciar sesión</button>
+          <button class="tab" type="button" id="tabRegister" aria-selected="false">Crear cuenta</button>
+        </div>
+
+        <div class="field">
+          <label for="authEmail">Email</label>
+          <input id="authEmail" type="email" placeholder="tu@email.com" autocomplete="email" />
+        </div>
+
+        <div class="field">
+          <label for="authPass">Contraseña</label>
+          <input id="authPass" type="password" placeholder="••••••••" autocomplete="current-password" />
+          <div class="helpRow">
+            <span id="authHelper">Usa tu email para entrar.</span>
+            <span class="link" id="authForgot">¿Olvidaste tu clave?</span>
+          </div>
+        </div>
+
+        <div class="field" id="registerExtra" style="display:none;">
+          <label for="authPass2">Repetir contraseña</label>
+          <input id="authPass2" type="password" placeholder="••••••••" autocomplete="new-password" />
+          <div class="helpRow">
+            <span>Al crear cuenta aceptas los términos.</span>
+            <span class="link" id="authTerms">Ver términos</span>
+          </div>
+        </div>
+
+        <div class="modalActions">
+          <button class="btn" type="button" id="btnAuthCancel">Cancelar</button>
+          <button class="btn primary" type="button" id="btnAuthSubmit">Continuar</button>
+        </div>
+
+        <div class="errorBox" id="authError"></div>
+        <div class="finePrint">beta1.1: autenticación simulada (se conectará a backend en beta2).</div>
+      </div>
+    </div>
   </div>
-</header>
 
-<main>
+  <script>
+    document.getElementById("year").textContent = new Date().getFullYear();
 
-<section class="hero">
-  <h1>Masteriza tu música con <span class="grad">calidad profesional</span></h1>
-  <p>
-  Masterización automática impulsada por análisis inteligente.
-  Obtén un sonido balanceado, fuerte y competitivo,
-  listo para Spotify, YouTube y Apple Music.
-</p>
-<p style="margin-top:10px;font-size:14px;color:var(--muted);">
-  Sin plugins • Sin conocimientos técnicos • Resultados inmediatos
-</p>
-  <div class="actions">
-    <button class="btn primary" id="btnLoginHero">Entrar al dashboard</button>
-  </div>
-</section>
+    // ===== DOM =====
+    const overlay = document.getElementById("authOverlay");
 
-<section class="section">
-  <section class="sound-visual">
-  <div class="bars">
-    <span></span><span></span><span></span><span></span><span></span>
-    <span></span><span></span><span></span><span></span><span></span>
-  </div>
+    const btnLogin = document.getElementById("btnLogin");
+    const btnRegister = document.getElementById("btnRegister");
+    const btnDashboard = document.getElementById("btnDashboard");
+    const btnChoosePro = document.getElementById("btnChoosePro");
+    const btnChooseStudio = document.getElementById("btnChooseStudio");
 
-  <p class="sound-text">
-    Análisis inteligente • Compresión precisa • Loudness profesional
-  </p>
-</section>
-  <section class="section" id="como">
-  <h2>Cómo funciona</h2>
-  <p class="lead">Sube tu track, elige un carácter y descarga un master listo para publicar.</p>
+    const btnClose = document.getElementById("btnAuthClose");
+    const btnCancel = document.getElementById("btnAuthCancel");
+    const btnSubmit = document.getElementById("btnAuthSubmit");
 
-  <div class="cards">
-    <div class="card">
-      <div class="kicker"><div class="icon">1</div><h3>Sube tu track</h3></div>
-      <p>WAV o MP3. Luego podrás limitar tamaño/duración en el backend.</p>
-    </div>
+    const tabLogin = document.getElementById("tabLogin");
+    const tabRegister = document.getElementById("tabRegister");
 
-    <div class="card">
-      <div class="kicker"><div class="icon">2</div><h3>Elige el estilo</h3></div>
-      <p>Presets por género + control de intensidad para el carácter del master.</p>
-    </div>
+    const titleText = document.getElementById("authTitleText");
+    const helper = document.getElementById("authHelper");
 
-    <div class="card">
-      <div class="kicker"><div class="icon">3</div><h3>Descarga tu master</h3></div>
-      <p>Exporta WAV/MP3 y deja listo tu track para plataformas.</p>
-    </div>
-  </div>
-</section>
+    const email = document.getElementById("authEmail");
+    const pass = document.getElementById("authPass");
+    const pass2Wrap = document.getElementById("registerExtra");
+    const pass2 = document.getElementById("authPass2");
 
+    const err = document.getElementById("authError");
 
-<section class="section" id="features">
-  <h2>Características</h2>
-  <p class="lead">Una experiencia rápida y pro: comparas, ajustas y publicas.</p>
+    let mode = "login"; // login | register
 
-  <div class="cards">
-    <div class="card">
-      <div class="kicker"><div class="icon">A</div><h3>Presets por género</h3></div>
-      <p>Clean, Club, Warm, Bright, Heavy (puedes agregar más).</p>
-    </div>
+    function setMode(m){
+      mode = m;
+      const isRegister = (mode === "register");
 
-    <div class="card">
-      <div class="kicker"><div class="icon">I</div><h3>Control de intensidad</h3></div>
-      <p>Define cuánta compresión/saturación quieres en el resultado.</p>
-    </div>
+      tabLogin.setAttribute("aria-selected", String(!isRegister));
+      tabRegister.setAttribute("aria-selected", String(isRegister));
 
-    <div class="card">
-      <div class="kicker"><div class="icon">Q</div><h3>Exporta WAV / MP3</h3></div>
-      <p>Listo para Spotify / YouTube / Apple Music según tu plan.</p>
-    </div>
-  </div>
-</section>
+      titleText.textContent = isRegister ? "Crear cuenta" : "Iniciar sesión";
+      helper.textContent = isRegister
+        ? "Crea tu cuenta para guardar tus masters."
+        : "Usa tu email para entrar.";
 
+      btnSubmit.textContent = isRegister ? "Crear cuenta" : "Entrar";
+      pass2Wrap.style.display = isRegister ? "block" : "none";
+      pass.setAttribute("autocomplete", isRegister ? "new-password" : "current-password");
+    }
 
-<section class="section" id="precios">
-  <h2>Precios</h2>
-  <p class="lead">Modelo demo. Luego conectas Stripe o ventas por créditos.</p>
+    function openModal(nextMode){
+      setMode(nextMode || "login");
+      overlay.classList.add("open");
+      overlay.setAttribute("aria-hidden","false");
+      err.style.display = "none";
+      err.textContent = "";
+      setTimeout(()=> email?.focus(), 30);
+    }
 
-  <div class="cards">
-    <div class="card plan">
-      <span class="badge"><i></i> Recruit</span>
-      <h3>Free</h3>
-      <div class="price">$0</div>
-      <div class="meta">2 masters/mes • MP3 • Presets básicos</div>
-    </div>
+    function closeModal(){
+      overlay.classList.remove("open");
+      overlay.setAttribute("aria-hidden","true");
+    }
 
-    <div class="card plan">
-      <span class="badge"><i></i> Popular</span>
-      <h3>Pro</h3>
-      <div class="price">$12</div>
-      <div class="meta">20 masters/mes • WAV 24-bit • A/B • Targets</div>
-    </div>
+    function showError(msg){
+      err.textContent = msg;
+      err.style.display = "block";
+    }
 
-    <div class="card plan">
-      <span class="badge"><i></i> Studio</span>
-      <h3>Studio</h3>
-      <div class="price">$29</div>
-      <div class="meta">Ilimitado* • Prioridad • API / Integración</div>
-    </div>
-  </div>
-</section>
+    // ===== Handlers abrir =====
+    btnLogin?.addEventListener("click", () => openModal("login"));
+    btnRegister?.addEventListener("click", () => openModal("register"));
+    btnChoosePro?.addEventListener("click", () => openModal("register"));
+    btnChooseStudio?.addEventListener("click", () => openModal("register"));
 
-<!-- ⚠️ FAQ ELIMINADA AQUÍ (COMO PEDISTE) -->
+    function goDashboard(){
+      const ok = localStorage.getItem("warmaster_logged") === "true";
+      if (ok) window.location.href = "dashboard.html";
+      else openModal("login");
+    }
+    btnDashboard?.addEventListener("click", goDashboard);
 
-</main>
+    // ===== Tabs =====
+    tabLogin.addEventListener("click", () => setMode("login"));
+    tabRegister.addEventListener("click", () => setMode("register"));
 
-<!-- LOGIN FAKE — SOLO FUNCIONALIDAD -->
-<script>
-  function loginFake(){
-    localStorage.setItem("warmaster_logged", "true");
-    window.location.href = "dashboard.html";
-  }
+    // ===== Cerrar =====
+    btnClose.addEventListener("click", closeModal);
+    btnCancel.addEventListener("click", closeModal);
 
-  document.getElementById("btnLogin")?.addEventListener("click", loginFake);
-  document.getElementById("btnLoginHero")?.addEventListener("click", loginFake);
-</script>
-<script>
-  document.getElementById("btnNewMaster").addEventListener("click", () => {
-    window.location.href = "master.html";
-  });
-</script>
+    overlay.addEventListener("click", (e)=>{
+      if (e.target === overlay) closeModal();
+    });
+
+    window.addEventListener("keydown", (e)=>{
+      if (e.key === "Escape" && overlay.classList.contains("open")) closeModal();
+    });
+
+    // ===== Extras =====
+    document.getElementById("authForgot")?.addEventListener("click", ()=>{
+      alert("Recuperación (beta2). Por ahora crea cuenta o inicia sesión.");
+    });
+    document.getElementById("authTerms")?.addEventListener("click", ()=>{
+      alert("Términos (beta2). Por ahora: uso razonable y sin abuso.");
+    });
+
+    // ===== Submit (fake auth) =====
+    btnSubmit.addEventListener("click", ()=>{
+      const e = (email.value || "").trim();
+      const p = (pass.value || "").trim();
+
+      err.style.display = "none";
+      err.textContent = "";
+
+      if (!e.includes("@")) return showError("Ingresa un email válido.");
+      if (p.length < 4) return showError("Contraseña muy corta (mínimo 4 caracteres).");
+
+      if (mode === "register"){
+        const p2 = (pass2.value || "").trim();
+        if (p2.length < 4) return showError("Repite tu contraseña.");
+        if (p !== p2) return showError("Las contraseñas no coinciden.");
+      }
+
+      localStorage.setItem("warmaster_logged","true");
+      closeModal();
+      window.location.href = "dashboard.html";
+    });
+  </script>
 </body>
 </html>
-
-
-
